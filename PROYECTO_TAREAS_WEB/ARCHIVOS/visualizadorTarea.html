@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <link rel="icon" type="image/x-icon" href="tarea.png">
+        <title>Visualizador De Tareas</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link href="estilo.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap">
+        <script type="text/javascript" src="jquery.js"></script>
+        
+    </head>
+ 
+    <body>
+
+        <header>
+            <button id="abrirMenu" class="abrirMenu">☰</button>
+            <nav id="navMenu" class="navMenu">
+                <button id="cerrarMenu" class="cerrarMenu">✖</button>
+                <ul class="navListMenu">
+                    <li id="menuPendiente" onclick="menuPendiente();">Pendientes</li>
+
+                    <li id="menuPendienteRealizada" onclick="menuPendienteRealizada();">Pendientes+Realizadas</li>
+
+                    <li id="menuRealizada" onclick="menuRealizada();">Realizadas</li>
+
+                </ul>
+            </nav>
+
+            
+            <h1>Visualizador<br>De<br>Tareas</h1>
+
+        </header>
+
+        <hr>
+
+        <div class="ordenar">
+            
+            <input id="btn-ordenar" title="Ordenar según este criterio" onclick=cambiarOrden() type="button" value="Más antiguo"/>
+
+            <p id="letra1">B</p>
+            <p id="letra2">C</p>
+            <p id="letra3">A</p>
+            
+        </div>
+
+        <div class="ordenar">
+            <span class="circuloRealizado"></span>
+            <pre>Tarea realizada    Tarea pendiente</pre>
+            <span class="circuloPendiente"></span>
+        </div>
+
+        <hr>
+        <!-- Aqui debe de ejecutarse una logica para -->
+        <!-- saber la cantidad de botones a desplegar -->
+        <div class="ordenar">
+            <div class="paginacion">
+                <input class="pagina" type="button" value="0"/>
+            </div>
+        </div>
+
+        <div id="cargar" class="cargar"> </div>
+        <div class="ordenar">
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Tarea</th>
+                        <th>Fecha</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tarea">
+
+                    <tr>
+                        <td class="vacio">
+                            Esperando tareas del servidor
+                        </td>
+                        
+                        <td class="vacio">xx/xx/xxxx</td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="ordenar">
+            <div class="paginacion">
+                <input class="pagina" type="button" value="0"/>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="script.js"></script>
+
+        <script>
+            menuPendienteRealizada();
+        </script>
+
+    </body>
+
+    <footer>
+        
+    </footer>
+    
+</html>

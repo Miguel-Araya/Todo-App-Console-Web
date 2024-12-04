@@ -1,0 +1,4 @@
+Poner el color seleccionado por el usuario en el texto y otras opciones. Fecha: 19/09/2024
+Agregar en la pagina web que se puedan revisar otros archivo no solo el de tareas por defecto. Fecha: 19/09/2024
+Agregar que el usuario pueda cambiar el estilo en tiempo real dentro de la terminal. Fecha: 19/09/2024
+Implementar paginacion para la seleccion de archivos al inicio del programa, ya que pueden haber varios. Fecha: 21/09/2024

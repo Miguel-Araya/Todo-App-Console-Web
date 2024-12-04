@@ -1,0 +1,56 @@
+function consultaAsincronaClienteJSON(cedula) {
+
+    var parametros = {
+        "cedula": cedula
+
+    };
+    $.ajax(
+            {
+                data: parametros,
+                url: '?controlador=Factura&accion=obtenerClienteAjax',
+                type: 'post',
+                beforeSend: function () {
+                    $("#resultado").html("Procesando cliente");
+
+                },
+                success: function (respuesta) {
+                    var datos = JSON.parse(respuesta);
+
+                    $("#resultado").html(datos.resultado);
+                    
+                    $('#registros').find('td').remove();
+                    if (datos.resultado.trim() === "Completado") {
+
+                        for (var i = 0; i < datos.lista.length; i++) {
+
+                            var columna1 = $('<td>', {
+
+                                text: datos.lista[i].nombre
+                            });
+
+                            var columna2 = $('<td>', {
+
+                                text: datos.lista[i].apellidos
+                            });
+
+                            var columna3 = $('<td>', {
+
+                                text: datos.lista[i].direccion
+                            });
+
+
+                            var fila = $('<tr>');
+
+                            fila.append(columna1);
+                            fila.append(columna2);
+                            fila.append(columna3);
+
+                            $("#registros").append(fila);
+                        } // for
+                        
+                        $("#reCedula").val(cedula);
+                    }
+                }
+            }
+    );
+} // consultaAsincrona
