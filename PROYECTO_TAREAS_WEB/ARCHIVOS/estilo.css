@@ -1,0 +1,585 @@
+
+body, footer{ 
+   background-color: #001435;
+   color: white;
+}
+
+*{
+   font-family: 'Montserrat', sans-serif; 
+   /* margin: 0;
+   padding: 0; */
+   /* box-sizing: border-box; */
+}
+
+header{
+
+   display: flex;
+   align-items: center;
+   justify-content: center;
+
+}
+
+nav ul{
+   list-style-type: none;
+   padding: 0.2em;
+   border-radius: 0.7em;
+   font-size: 1em;  
+   display: flex;
+   margin-right: 0.8em;
+   gap: 1em;
+}
+
+nav li{
+   color: #3dcccc;
+   transition: color 0.5s ease-out; /*Se transiciona de manera mas suave*/
+   cursor: pointer;
+}
+
+h1{
+   color: white;
+   text-align: center;
+   text-decoration: underline;
+   font-size: 1.3em;
+   margin-left: 0.2em;
+   margin-right: 1.7em;
+   border-radius: 0.9em;
+   padding: 0.5em;
+}
+
+.cargar{
+
+   border-right: 0.2em solid transparent;
+   border-top: 0.2em solid #3dcccc;
+   border-radius: 50%;
+   width: 1.5em; /* Ajusta el ancho según sea necesario */
+   height: 1.5em; /* Ajusta la altura según sea necesario */
+   animation: girar 1s linear infinite;
+   margin: auto;
+   margin-top: 0.5em; /* Ajusta la posición vertical según sea necesario */
+ }
+ 
+ @keyframes girar {
+   0% { transform: rotate(0deg); }
+   100% { transform: rotate(360deg); }
+ }
+
+pre{
+
+   font-size: 0.85em;
+
+}
+
+input[type="button"]{
+   cursor: pointer;
+   background-color: #153569;
+   border-color: transparent;
+   color: white;
+   border-radius: 0.3em;
+   font-size: 1em;
+   margin-top: 0.5em;
+   padding: 0 0.5em 0 0.5em;
+   outline: none;
+}
+
+.seleccionada{
+
+   text-decoration: underline;
+   color: white;
+
+}
+
+.circuloPendiente {
+   width: 0.6em;
+   height: 0.6em;
+   margin-left: 0.3em;
+   background-color: #c74b3d; /* Color de fondo, puedes cambiarlo */
+   border-radius: 50%; /* Hace que el elemento sea un círculo perfecto */
+   box-shadow: 0 0 0.4em 0.1em #c74b3d;
+}
+
+.circuloRealizado {
+   width: 0.6em;
+   height: 0.6em;
+   margin-right: 0.3em;
+   background-color: #54c45e; /* Color de fondo, puedes cambiarlo */
+   border-radius: 50%; /* Hace que el elemento sea un círculo perfecto */
+   box-shadow: 0 0 0.4em 0.1em #54c45e;
+}
+
+.pendiente{
+
+   border-color: #c74b3d;
+   box-shadow: 0 0.1em 0.4em 0 #c74b3d;
+
+}
+
+.abrirMenu,
+.cerrarMenu{
+
+   display: none;
+   cursor: pointer;
+   border-radius: 0.55em;
+   outline: none;
+   /* display: flex; */
+   align-items: start;
+   justify-content: none;
+}
+
+.vacio{
+
+   border-color: #8b8b8b;
+   box-shadow: 0 0.1em 0.4em 0 #8b8b8b;
+
+}
+
+.realizada{
+
+   border-color: #54c45e;
+   box-shadow: 0 0.1em 0.4em 0 #54c45e;
+
+}
+
+div .bloqueado{
+
+   color: gray;
+
+}
+
+div .pagina{
+   border-style: solid;
+   border-width: 0.15em;
+   border-color: white;
+}
+
+table{
+   margin-bottom: 0.5em;
+   margin-top: 1em;
+   font-size: 1em;
+   max-width: 65em;
+   width: 100%;
+   border-color: white;
+   border-width: 0.01em;
+   border-collapse: separate;
+   border-spacing: 0.3em 0.6em;
+   border-style: solid;
+   border-radius: 0.6em;
+}
+
+td{
+   border-style: solid;
+   border-color: transparent;
+   border-radius: 0.6em;
+   border-width: 0.03em;
+   padding: 0.3em;
+   text-align: justify;
+
+   /* ocupa todo el espacio para dejar compactos los campos,
+   por ejemplo para que la fecha no tenga espacios */
+   width: 100%;
+}
+
+.ordenar{
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+/*
+Si quisiera cambiar el estilo a un conjunto de botones
+dentro de un div debo de especificar .paginacion input[type="button"]
+y luego los estilos
+*/
+
+#letra1, #letra2, #letra3{
+   margin-left: 2em;
+   font-size: 0.8em;
+}
+
+/* Estilo cuando el elemento está activo (seleccionado o tocado) */
+#btn-ordenar{
+   color: #3dcccc;
+   background-color: transparent;
+   font-size: 1em;
+   border-color: white;
+   border-style: solid;
+   border-width: 0.1em;
+   border-radius: 0.7em;
+   padding: 0.2em;
+   margin: 0;
+   min-width: 7em;
+   transition: color 0.5s ease-out; /*Se transiciona de manera mas suave*/
+   outline: none;
+   -webkit-tap-highlight-color: transparent;
+   /*colocarlo en el centro o ponerlo en un div y aplicarle align a ese div*/
+   /*
+   display: block;
+   margin: auto;
+   */
+}
+
+#letra1{
+   animation-name: ordenarLetra1;
+   animation-duration: 20s;
+   animation-delay: 6s;
+   animation-iteration-count: infinite;
+}
+
+#letra2{
+   animation-name: ordenarLetra2;
+   animation-duration: 20s;
+   animation-delay: 6s;
+   animation-iteration-count: infinite;
+}
+
+#letra3{
+
+   animation-name: ordenarLetra3;
+   animation-duration: 20s;
+   animation-delay: 6s;
+   animation-iteration-count: infinite; 
+
+}
+
+#btn-ordenar:hover{
+   color: white;
+}
+
+nav li:hover{
+   color: white;
+}
+
+hr{
+   color: white;
+}
+
+.navMenu{
+
+   transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+
+}
+
+
+@keyframes ordenarLetra1 {
+
+   50%{
+
+      transform: translateX(2em);
+
+   }
+
+   80%{
+
+      transform: translateX(3em);
+
+   }
+
+
+}
+
+@keyframes ordenarLetra2 {
+
+   50%{
+
+      transform: translateX(2em);
+
+   }
+
+   80%{
+
+      transform: translateX(3em);
+
+   }
+
+}
+
+@keyframes ordenarLetra3 {
+   
+   50%{
+
+      transform: translateX(-2em);
+
+   }
+
+   80%{
+
+      transform: translateX(-5.25em);
+
+   }
+   
+}
+
+ /* Extra small devices (phones, 600px and down) */
+ @media only screen and (max-width: 600px) {
+
+   .abrirMenu,.cerrarMenu{
+      display: block;
+   }
+   
+   header{
+      display: block;
+   }
+
+   .navMenu{
+      opacity: 0;
+      visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: end;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background-color: #130000;
+      box-shadow: 0 0 0 99vmax rgba(0, 0, 0, 0.5);
+   }
+   
+   .navMenu.active{
+      opacity: 1;
+      visibility: visible;
+   }
+   
+   button, nav li{
+
+      font-size: 0.6em;
+      
+   }
+
+  .navListMenu{
+
+      flex-direction: column;
+      align-items: end;
+      
+   }
+   
+   .cargar{
+      border-right: 0.13em solid transparent;
+      border-top: 0.13em solid #3dcccc;
+      width: 0.7em;
+      height: 0.7em;
+   }
+
+   table{
+
+      font-size: 0.58em;
+
+   }
+
+   h1{
+      
+      font-size: 0.8em;
+
+   }
+
+   input[type="button"], #btn-ordenar{
+
+      font-size: 0.6em;
+
+   }
+
+   pre, #letra1, #letra2, #letra3{
+
+      font-size: 0.63em;
+      
+   }
+
+   .circuloPendiente{
+
+      width: 0.34em;
+      height: 0.34em;
+   }
+
+   .circuloRealizado{
+
+      width: 0.34em;
+      height: 0.34em;
+   }
+
+ } 
+
+ /* Small devices (portrait tablets and large phones, 600px and up) */
+ @media only screen and (min-width: 600px) {
+
+   nav li, table{
+
+      font-size: 0.7em;
+   }
+
+   .cargar{
+      border-right: 0.17em solid transparent;
+      border-top: 0.17em solid #3dcccc;
+      width: 0.9em;
+      height: 0.9em;
+   }
+
+   h1{
+
+      font-size: 0.9em;
+
+   }
+
+   input[type="button"], #btn-ordenar{
+
+      font-size: 0.77em;
+
+   }
+
+   pre, #letra1, #letra2, #letra3{
+
+      font-size: 0.65em;
+      
+   }
+
+   .circuloPendiente{
+
+      width: 0.45em;
+      height: 0.45em;
+   }
+
+   .circuloRealizado{
+
+      width: 0.45em;
+      height: 0.45em;
+   }
+
+ }
+
+ @media only screen and (min-width: 768px) {
+
+   nav li, table{
+
+      font-size: 0.8em;
+   }
+
+   .cargar{  
+      border-right: 0.19em solid transparent;
+      border-top: 0.19em solid #3dcccc;
+      width: 1.1em;
+      height: 1.1em;
+   }
+
+   h1{
+
+      font-size: 0.9em;
+
+   }
+
+   input[type="button"], #btn-ordenar{
+
+      font-size: 0.8em;
+
+   }
+
+   pre, #letra1, #letra2, #letra3{
+
+      font-size: 0.65em;
+      
+   }
+
+   .circuloPendiente{
+
+      width: 0.45em;
+      height: 0.45em;
+   }
+
+   .circuloRealizado{
+
+      width: 0.5em;
+      height: 0.5em;
+   }
+
+} 
+ 
+ /* Large devices (laptops/desktops, 992px and up) */
+ @media only screen and (min-width: 992px) {
+
+   nav li, table{
+
+      font-size: 0.8em;
+   }
+
+   .cargar{  
+      border-right: 0.2em solid transparent;
+      border-top: 0.2em solid #3dcccc;
+      width: 1.5em;
+      height: 1.5em;
+   }
+
+   h1{
+
+      font-size: 1.1em;
+
+   }
+
+   input[type="button"], #btn-ordenar{
+
+      font-size: 0.8em;
+
+   }
+
+   pre, #letra1, #letra2, #letra3{
+
+      font-size: 0.7em;
+      
+   }
+
+   .circuloPendiente{
+
+      width: 0.43em;
+      height: 0.43em;
+   }
+
+   .circuloRealizado{
+
+      width: 0.43em;
+      height: 0.43em;
+   }
+
+ }
+ 
+ /* Extra large devices (large laptops and desktops, 1200px and up) */
+ @media only screen and (min-width: 1200px) {
+
+   nav li, table{
+
+      font-size: 1em;
+   }
+
+   .cargar{  
+      border-right: 0.2em solid transparent;
+      border-top: 0.2em solid #3dcccc;
+      width: 1.5em;
+      height: 1.5em;
+
+   }
+
+   h1{
+
+      font-size: 1.3em;
+
+   }
+
+   input[type="button"], #btn-ordenar{
+
+      font-size: 1em;
+
+   }
+
+   pre, #letra1, #letra2, #letra3{
+
+      font-size: 0.85em;
+      
+   }
+
+   .circuloPendiente{
+
+      width: 0.55em;
+      height: 0.55em;
+   }
+
+   .circuloRealizado{
+
+      width: 0.55em;
+      height: 0.55em;
+   }
+
+ } 
