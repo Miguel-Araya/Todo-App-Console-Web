@@ -13,60 +13,25 @@ class Menu
 
   def init
 
-    file_task_option = "FILE_OPTION.txt"
-    task_menu_option = []
-    task_menu_method = []
+    #Load the first menu to select the file that contain the tasks
+    result = load_menu_file
+    
+    if result == -1
 
-    print @@console.get_utility("CLEAN_SCREEN")
-
-    File.open(file_task_option, "r") do |file|
-
-      while (line = file.gets)
-
-        task_menu_option.push(line.strip)
-
-      end
-
-    end
-
-    if task_menu_option.empty?
       @@console.apply_margin
-      @@console.cancel_message("Not exists file to read\n")
+      @@console.cancel_message("File not exists or is empty\n")
       wait_enter
       return
-    end
-
-    #ask for "BOM" character
-    if task_menu_option[0][0] == "\xEF\xBB\xBF"
-      task_menu_option[0].slice!(0)
-    end
-    
-    #Make a default selection if the user dont choose an option
-    @@task = Task.new(task_menu_option[-1])
-
-    for i in 0..task_menu_option.size-1
-
-      task_menu_method.push("set_task('#{task_menu_option[i]}')")
-
-      #Make that the user not need to know the extension of the file
-      task_menu_option[i] = "◉ #{task_menu_option[i].split(".")[0]}"
 
     end
 
-    task_menu_option.insert(0, "◉ Exit")
-
+    #variables to init the menu
+    menu_option = []
+    menu_method = []
     menu_level = 1
 
-    menu_option = [task_menu_option]
-    menu_method = [task_menu_method]
-
-    #if exists more than 1 file to select
-    if task_menu_method.size > 1
-      exec_menu(menu_option, menu_method, menu_level-1)
-    end
-
-    principal_menu_option = ["◉ Exit", "◉ Select file ▼" , "◉ Add task", "◉ Seek ▼", "◉ Delete ▼", "◉ Update", "◉ Mark as done ▼", "◉ Unmark task ▼", "◉ Status of tasks"]
-    principal_menu_method = ["exec_menu(#{menu_option}, #{menu_method}, #{menu_level-1})", "exec_add", "menu", "menu", "exec_update", "menu", "menu", "exec_status_task"]
+    principal_menu_option = ["◉ Exit", "◉ Select file", "◉ Add task", "◉ Seek ▼", "◉ Delete ▼", "◉ Update", "◉ Mark as done ▼", "◉ Unmark task ▼", "◉ Status of tasks"]
+    principal_menu_method = ["load_menu_file", "exec_add", "menu", "menu", "exec_update", "menu", "menu", "exec_status_task"]
     #menu_style = ["box_style" ,"box_color", "text_color", selected_icon]
     #principal_menu_style = ["dotted", "CYAN", nil, nil]
 
@@ -100,6 +65,75 @@ class Menu
     
   end
   
+  def load_menu_file
+
+    max_char_size = 8 #the limit of characters to check if the file is empty
+    content_file = "" #to verify the content of the file
+
+    file_task_option = "FILE_OPTION.txt"
+    task_menu_option = []
+    task_menu_method = []
+
+    print @@console.get_utility("CLEAN_SCREEN")
+
+    if !File.exist?(file_task_option) || File.zero?(file_task_option)
+      return -1
+    end
+
+    content_file = IO.read(file_task_option, max_char_size)
+    content_file = content_file.gsub(/[^[:ascii:]]/, "")
+
+    if(content_file.empty?)
+      return -1
+    end
+
+    File.open(file_task_option, "r") do |file|
+
+      while (line = file.gets)
+
+        task_menu_option.push(line.strip)
+
+      end
+
+    end
+
+    if task_menu_option.empty?
+      return -1
+    end
+
+    #ask for "BOM" character
+    if task_menu_option[0][0] == "\xEF\xBB\xBF"
+      task_menu_option[0].slice!(0)
+    end
+    
+    #Make a default selection if the user dont choose an option
+    @@task = Task.new(task_menu_option[-1])
+
+    for i in 0..task_menu_option.size-1
+
+      task_menu_method.push("set_task('#{task_menu_option[i]}')")
+
+      #Make that the user not need to know the extension of the file
+      task_menu_option[i] = "◉ #{task_menu_option[i].split(".")[0]}"
+
+    end
+
+    task_menu_option.insert(0, "◉ Exit")
+
+    menu_level = 1
+
+    menu_option = [task_menu_option]
+    menu_method = [task_menu_method]
+
+    #if exists more than 1 file to select
+    if task_menu_method.size > 1
+      exec_menu(menu_option, menu_method, menu_level-1)
+    end
+
+    return 0
+
+  end
+
   def read_char
 
     STDIN.echo = false
@@ -141,6 +175,7 @@ class Menu
   end
 
   def exec_menu(menu_option, menu_method, menu_level, menu_style = nil)
+        
     option = 1
     enter = false
 
@@ -188,14 +223,16 @@ class Menu
           exec_sub_menu(menu_option, menu_method, menu_level+1, index_next_menu, menu_style)
 
         else
-
-          send(:eval, menu_method[menu_level][option-1])
-          
+        
+        send(:eval, menu_method[menu_level][option-1])
+        
         end
-      end
 
+      end
+      
       print "#{@@console.get_utility("CLEAN_SCREEN")}"
-    end
+
+    end #loop
   end
 
   def get_menu_index(menu_method, menu_level, option)
