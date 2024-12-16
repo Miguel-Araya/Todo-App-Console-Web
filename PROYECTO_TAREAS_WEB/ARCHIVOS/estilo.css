@@ -5,10 +5,7 @@ body, footer{
 }
 
 *{
-   font-family: 'Montserrat', sans-serif; 
-   /* margin: 0;
-   padding: 0; */
-   /* box-sizing: border-box; */
+   font-family: 'Montserrat', sans-serif;
 }
 
 header{
@@ -115,12 +112,12 @@ input[type="button"]{
 
 .abrirMenu,
 .cerrarMenu{
-
+   margin-top: 0.7em;
+   border: none;
    display: none;
    cursor: pointer;
    border-radius: 0.55em;
    outline: none;
-   /* display: flex; */
    align-items: start;
    justify-content: none;
 }
@@ -185,10 +182,53 @@ td{
 }
 
 /*
-Si quisiera cambiar el estilo a un conjunto de botones
-dentro de un div debo de especificar .paginacion input[type="button"]
-y luego los estilos
+inicio select tarea
 */
+
+select {
+   appearance: none; /* Elimina el estilo predeterminado del navegador */
+   -webkit-appearance: none; /* Compatibilidad con Safari */
+   -moz-appearance: none; /* Compatibilidad con Firefox */
+   background-color: #001435; /* Color de fondo */
+   margin: 3px;
+   color: white;
+   padding: 5px 10px;
+   font-size: 16px;
+   border: 2px solid white; 
+   border-radius: 8px;
+   box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.1);
+   transition: all 0.3s ease;
+   cursor: pointer;
+   width: 100%;
+   max-width: 300px;
+   text-align: center;
+   outline: none;
+   border-color: none;
+}
+
+select:hover {
+   color: #3dcccc;
+}
+
+select:focus {
+   color: #3dcccc;
+}
+
+select option{
+   appearance: none;
+   -webkit-appearance: none;
+   -moz-appearance: none;
+   -webkit-tap-highlight-color: transparent;
+   border-color: transparent;
+   background-color: #001435;
+   color: white;
+}
+
+/*
+fin select tarea
+*/
+
+
 
 #letra1, #letra2, #letra3{
    margin-left: 2em;
@@ -210,11 +250,6 @@ y luego los estilos
    transition: color 0.5s ease-out; /*Se transiciona de manera mas suave*/
    outline: none;
    -webkit-tap-highlight-color: transparent;
-   /*colocarlo en el centro o ponerlo en un div y aplicarle align a ese div*/
-   /*
-   display: block;
-   margin: auto;
-   */
 }
 
 #letra1{
@@ -258,6 +293,15 @@ hr{
 
 }
 
+::selection {
+   background-color: #4c4c4c;
+   color: white;
+}
+
+::-moz-selection {
+   background-color: #4c4c4c;
+   color: white;
+}
 
 @keyframes ordenarLetra1 {
 

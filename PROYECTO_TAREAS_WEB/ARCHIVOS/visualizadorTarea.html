@@ -36,6 +36,12 @@
         <hr>
 
         <div class="ordenar">
+            <select id="selectTarea" class="selectTarea" onchange=establecerArchivoSeleccionado(this)>
+                <option id="defaultOption">Seleccione una lista de tareas</option>
+            </select>
+        </div>
+
+        <div class="ordenar">
             
             <input id="btn-ordenar" title="Ordenar según este criterio" onclick=cambiarOrden() type="button" value="Más antiguo"/>
 
@@ -60,7 +66,7 @@
             </div>
         </div>
 
-        <div id="cargar" class="cargar"> </div>
+        <div id="cargar"> </div>
         <div class="ordenar">
             <table>
 
@@ -78,6 +84,7 @@
                 <tbody id="tarea">
 
                     <tr>
+
                         <td class="vacio">
                             Esperando tareas del servidor
                         </td>
@@ -101,7 +108,7 @@
         <script type="text/javascript" src="script.js"></script>
 
         <script>
-            menuPendienteRealizada();
+            cargarListaTareas();
         </script>
 
     </body>
