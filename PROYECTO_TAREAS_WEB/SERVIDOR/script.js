@@ -1,6 +1,9 @@
 const fs = require('fs');
+const path = require('path');
+const rutas = require('./rutasArchivos.json');
 const readline = require('readline');
-const rutaArchivoTarea = 'C:/Users/Miguel/Desktop/RUBY/PROYECTO_TAREAS - ORIGINAL/TASK.txt';
+var rutaArchivoTarea = "";
+
 //Para la paginacion
 const limiteLinea = 7;
 var cantidadPendiente = 0;
@@ -9,6 +12,10 @@ var cantidadRealizada = 0;
 
 async function obtenerCantidadTarea(){
     
+    cantidadPendiente = 0;
+    cantidadPendienteRealizada = 0;
+    cantidadRealizada = 0;
+
     return new Promise((resolve, reject) => {
 
     const archivoStream = fs.createReadStream(rutaArchivoTarea);
@@ -290,7 +297,6 @@ async function tareaPendienteRealizadaAntigua(pagina) {
     });
 }
 
-//REPARAR
 async function tareaPendienteRealizadaReciente(pagina) {
     return new Promise((resolve, reject) => {
         
@@ -545,7 +551,7 @@ async function tareaRealizadaReciente(pagina) {
     });
 }
 
-function obtenerPaginacionPendiente(){
+async function obtenerPaginacionPendiente(){
 
     try{
         const cantidadPagina = {totalPagina: Math.ceil(cantidadPendiente/limiteLinea)};
@@ -558,7 +564,7 @@ function obtenerPaginacionPendiente(){
 
 }
 
-function obtenerPaginacionPendienteRealizada(){
+async function obtenerPaginacionPendienteRealizada(){
 
     try{
 
@@ -573,7 +579,7 @@ function obtenerPaginacionPendienteRealizada(){
 
 }
 
-function obtenerPaginacionRealizada(){
+async function obtenerPaginacionRealizada(){
 
     try{
 
@@ -588,15 +594,67 @@ function obtenerPaginacionRealizada(){
     
 }
 
-(async () => {
-    try {
+//obtener los archivos disponibles para seleccionar
+//que se leen desde un archivo de texto en la ruta especificada
+async function obtenerArchivosDisponibles(){
+    
+    return new Promise((resolve, reject) => {
+
+        const rutaArchivo = 'C:/Users/Miguel/Desktop/RUBY/PROYECTO_TAREAS - ORIGINAL/FILE_OPTION.txt';
+
+        const archivoStream = fs.createReadStream(rutaArchivo);
+
+        const rl = readline.createInterface({
+            input: archivoStream,
+            crlfDelay: Infinity,
+        });
+
+        const archivos = [];
+
+        rl.on('line', (linea) => {
+            archivos.push(linea);
+        });
+
+        rl.on('close', () => {
+
+            //prevenir el character BOM de la primera linea, del arreglo            
+            if(archivos.length !== 0){
+                archivos[0] = archivos[0].trim();
+            }
+
+            resolve(archivos);
+        });
+
+        rl.on('error', (error) => {
+            reject(error);
+        });
+
+    });
+}
+
+//el archivo que viene se establece como el archivo seleccionado
+//se guarda en la variable global y se devuelve un boolean con el resultado si fue satisfactorios
+async function establecerArchivoSeleccionado(archivo){
+
+    try{
+
+        var rutaResuelta = path.resolve(`${rutas.directorioTareas}/${archivo}`);
+
+        rutaArchivoTarea = rutaResuelta;
+        
+        //volver a actualizar la cantidad de tareas disponibles para el nuevo archivo
         const resultado = await obtenerCantidadTarea();
         cantidadPendienteRealizada = resultado.cantidadPendienteRealizada;
-       
-    } catch (error) {
-        console.error('Error al ejecutar la función asíncrona:', error);
+
+        return {resultado: true};
+
+    }catch(error){
+
+        return {resultado: false};
+
     }
-})();
+
+}
 
 // Exporta la función para que pueda ser utilizada en otros archivos
 module.exports = {
@@ -609,4 +667,6 @@ module.exports = {
     obtenerPaginacionPendiente,
     obtenerPaginacionPendienteRealizada,
     obtenerPaginacionRealizada,
+    obtenerArchivosDisponibles,
+    establecerArchivoSeleccionado
 };

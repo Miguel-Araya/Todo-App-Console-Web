@@ -4,8 +4,12 @@ const cors = require('cors');
 const app = express();
 const puerto = 5000;
 const corsMiddle = cors();
+const bodyParser = require('body-parser');
 //se puede omitir el .js
 const manejoArchivo = require('./script.js');
+
+app.use(cors());
+app.use(bodyParser.json()); // Permite leer JSON en el cuerpo de la solicitud
 
 //Modificar para solo recibir solicitudes de una ruta especifica
 app.get('/api/tareaPendiente', corsMiddle, async (req, res) => {
@@ -92,13 +96,13 @@ app.get('/api/tareaRealizada', corsMiddle, async (req, res) => {
     // console.log("Solicitud recibida");
 });
 
-app.get('/api/paginacionPendiente', corsMiddle, (req, res) => {
+app.get('/api/paginacionPendiente', corsMiddle, async (req, res) => {
 
     var contenido;
 
     try{
         
-        contenido = manejoArchivo.obtenerPaginacionPendiente();
+        contenido = await manejoArchivo.obtenerPaginacionPendiente();
 
         res.json(contenido);
         
@@ -111,13 +115,13 @@ app.get('/api/paginacionPendiente', corsMiddle, (req, res) => {
     // console.log('Solicitud recibida');
 });
 
-app.get('/api/paginacionPendienteRealizada', corsMiddle, (req, res) => {
+app.get('/api/paginacionPendienteRealizada', corsMiddle, async (req, res) => {
 
     var contenido;
 
     try{
 
-        contenido = manejoArchivo.obtenerPaginacionPendienteRealizada();
+        contenido = await manejoArchivo.obtenerPaginacionPendienteRealizada();
 
         res.json(contenido);
     }catch(error){
@@ -128,13 +132,13 @@ app.get('/api/paginacionPendienteRealizada', corsMiddle, (req, res) => {
 
 });
 
-app.get('/api/paginacionRealizada', corsMiddle, (req, res) => {
+app.get('/api/paginacionRealizada', corsMiddle, async (req, res) => {
 
     var contenido;
 
     try{
 
-        contenido = manejoArchivo.obtenerPaginacionRealizada();
+        contenido = await manejoArchivo.obtenerPaginacionRealizada();
 
         res.json(contenido);
         
@@ -145,13 +149,40 @@ app.get('/api/paginacionRealizada', corsMiddle, (req, res) => {
     }
 });
 
-// Manejar solicitud GET a /api/ejemplo
-/*
-app.get('/api/tareaPendiente', (req, res) => {
-    console.log("Solicitud recibida");
-    res.json({ mensaje: 'Hola desde el servidor Node.js!' });
+app.get('/api/obtenerArchivosDisponibles', corsMiddle, async (req, res) => {
+
+    var contenido;
+
+    try{
+
+        contenido = await manejoArchivo.obtenerArchivosDisponibles();
+
+        res.json(contenido);
+        
+    }catch(error){
+
+        console.error(error);
+        res.status(500).json({error: 'Error al procesar la solicitud'});
+    }
+
 });
-*/
+
+app.put('/api/establecerArchivoSeleccionado', corsMiddle, async (req, res) => {
+
+    try {
+        
+        const { archivo } = req.body;
+
+        const contenido = await manejoArchivo.establecerArchivoSeleccionado(archivo);
+
+        res.json(contenido);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al procesar la solicitud' });
+    }
+});
+
 // Iniciar el servidor en el puerto especificado
 app.listen(puerto, () => {
     console.log(`Servidor escuchando en http://localhost:${puerto}`);

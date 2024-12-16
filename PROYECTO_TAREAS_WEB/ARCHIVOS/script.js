@@ -1,18 +1,37 @@
-//0 Mas antiguo
-//1 Mas reciente
+//Realizar una opción predeterminada para el select
+//Y que se reinicie esa opción cada vez que se recargue la página
+$(document).ready(function () {
+    const $selectTarea = $('#selectTarea');
+    const $defaultOption = $('#defaultOption');
+
+    const selectTarea = document.getElementById('selectTarea');
+
+    $defaultOption.prop('selected', true);
+    $defaultOption.prop('disabled', true);
+
+    //Poner un mensaje de para avisar al usuario que debe 
+    //seleccionar una archivo de tareas antes de seleccionar una opción de menu
+    //A menos que exista solo un archivo de tareas que se seleccione de manera automatica
+    selectTarea.setCustomValidity('Seleccione un archivo');
+});
+
+//0 Más antiguo
+//1 Más reciente
 var ordenSeleccionado = 0;
 
+//1->No seleccionado
 //0->Pendiente
 //1->Pendiente+Realizada
 //2->Realizada
-var tareaSeleccionada = 1;
+
+var tareaSeleccionada = -1;
 
 //Para colocar los botones de la paginacion
-//pagina limite
+//pagina límite
 var totalPagina = 0;
 
 //Cantidad de botones que se generar cada vez
-//que se presiona un boton de pagina
+//que se presiona un botón de página
 //3 botones siguientes y 3 anteriores
 const generarPaginacion = 3;
 
@@ -38,6 +57,16 @@ cerrarMenu.addEventListener('click', () => {
 });
 
 const menuPendiente = () => {
+
+    var selectTarea = document.getElementById('selectTarea');
+
+    //Verificar que sea la opcion por defecto
+    if (selectTarea.selectedIndex === 0) {
+
+        selectTarea.reportValidity();
+        
+        return;
+    }
 
     $.ajax({
 
@@ -84,6 +113,18 @@ const menuPendiente = () => {
 
 const menuPendienteRealizada = () => {
 
+    var selectTarea = document.getElementById('selectTarea');
+
+    // Verifica si el campo select tiene una opción seleccionada
+    // O que sea la opcion por defecto que no tiene ningun valor
+    if (selectTarea.selectedIndex === 0) {
+
+        selectTarea.reportValidity();
+        
+        return;
+    }
+
+
     $.ajax({
 
         url: 'http://localhost:5000/api/paginacionPendienteRealizada',
@@ -116,43 +157,6 @@ const menuPendienteRealizada = () => {
 
             });
 
-            //El codigo anterior tambien puede ser
-            // Obtén todos los elementos con la clase 'paginacion'
-            // var paginacionElements = document.querySelectorAll('.paginacion');
-
-            // // Itera sobre los elementos y vacía su contenido usando un bucle for
-            // for (var i = 0; i < paginacionElements.length; i++) {
-            //     paginacionElements[i].innerHTML = '';
-            // }
-
-            // document.querySelectorAll('.paginacion').forEach(function (elemento) {
-
-            //     var primerBoton = document.createElement('input');
-            //     primerBoton.type = 'button';
-            //     primerBoton.className = 'pagina';
-            //     primerBoton.value = valorPrimerBoton;
-            //     primerBoton.onclick = function () {
-
-            //         paginacion(valorPrimerBoton);
-
-            //     };
-
-            //     elemento.appendChild(primerBoton);
-
-            //     for (let index = 2; index <= (2 + generarPaginacion) && index <= totalPagina; index++) {
-
-            //         var boton = document.createElement('input');
-            //         boton.type = 'button';
-            //         boton.value = index;
-            //         boton.onclick = function () {
-            //             paginacion(index);
-            //         };
-
-            //         elemento.appendChild(boton);
-            //     }
-
-            // });
-
             tareaSeleccionada = 1;
 
             //Aqui se crean los botones y tambien se llama a las tareas correspondientes
@@ -170,6 +174,17 @@ const menuPendienteRealizada = () => {
 }
 
 const menuRealizada = () => {
+
+    var selectTarea = document.getElementById('selectTarea');
+
+    // Verifica si el campo select tiene una opción seleccionada
+    // O que sea la opcion por defecto que no tiene ningun valor
+    if (selectTarea.selectedIndex === 0) {
+
+        selectTarea.reportValidity();
+        
+        return;
+    }
 
     $.ajax({
 
@@ -194,34 +209,6 @@ const menuRealizada = () => {
                 valorPrimerBoton = 1;
                 paginaActual = 1;
             }
-
-            // $('.paginacion').each(function () {
-
-            //     var primerBoton = $('<input>', {
-            //         type: "button",
-            //         class: "pagina",
-            //         value: valorPrimerBoton,
-            //         click: function () {
-            //             paginacion(valorPrimerBoton);
-            //         }
-            //     });
-
-            //     $(this).append(primerBoton);
-
-            //     for (let index = 2; index <= (generarPaginacion + 2) && index <= totalPagina; index++) {
-
-            //         var boton = $('<input>', {
-            //             type: 'button',
-            //             value: index,
-            //             click: function () {
-            //                 paginacion(index);
-            //             }
-            //         });
-
-            //         $(this).append(boton);
-            //     }
-
-            // });
 
             tareaSeleccionada = 2;
 
@@ -428,7 +415,7 @@ const paginaAnterior = () => {
 
 }
 
-const paginacion = (botonPagina) => {
+const paginacion = (pagina) => {
 
     $('#cargar').addClass('cargar');
 
@@ -438,7 +425,7 @@ const paginacion = (botonPagina) => {
         tareaRealizada,
     ];
 
-    paginaActual = botonPagina;
+    paginaActual = pagina;
 
     //$('.pagina').removeClass('pagina');
 
@@ -462,7 +449,7 @@ const paginacion = (botonPagina) => {
 
         $(this).append(boton);
 
-        for (let index = botonPagina - generarPaginacion; index < botonPagina; index++) {
+        for (let index = pagina - generarPaginacion; index < pagina; index++) {
 
             if (index <= 0) {
 
@@ -484,9 +471,9 @@ const paginacion = (botonPagina) => {
         var boton = $('<input>', {
             class: 'pagina',
             type: "button",
-            value: botonPagina,
+            value: pagina,
             click: function () {
-                paginacion(botonPagina);
+                paginacion(pagina);
             }
         });
 
@@ -496,7 +483,7 @@ const paginacion = (botonPagina) => {
     //colocar botones posteriores
     $('.paginacion').each(function () {
 
-        for (let index = botonPagina + 1; index <= botonPagina + generarPaginacion && index <= totalPagina; index++) {
+        for (let index = pagina + 1; index <= pagina + generarPaginacion && index <= totalPagina; index++) {
 
             var boton = $('<input>', {
                 type: "button",
@@ -527,6 +514,81 @@ const paginacion = (botonPagina) => {
         }
     });
 
-    opcionEjecutar[tareaSeleccionada](botonPagina);
+    opcionEjecutar[tareaSeleccionada](pagina);
 
 }
+
+const cargarListaTareas = () => {
+
+    $.ajax({
+        url: 'http://localhost:5000/api/obtenerArchivosDisponibles',
+        type: 'get',
+        success: function (dato) {
+
+            dato.forEach(archivo => {
+                var opcion = $('<option>', {
+                    text: archivo.split('.')[0],
+                    value: archivo
+                });
+
+                $('#selectTarea').append(opcion);
+
+            });
+
+            //si solo existe un archivo para seleccionar entonces se selecciona de manera automatica
+            if(dato.length == 1){
+                establecerArchivoSeleccionado(dato[0]);
+            }
+            
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+
+            console.error('Error al realizar la solicitud:', textStatus, errorThrown);
+  
+            $('#cargar').removeClass('cargar');
+
+        }
+    });
+
+}
+
+const establecerArchivoSeleccionado = (opcion) => {
+
+    const archivoSeleccionado = opcion.value.toString();
+    
+    const menuEjecutar = [
+        menuPendiente,
+        menuPendienteRealizada,
+        menuRealizada,
+    ];
+
+    var parametro = {
+        archivo: archivoSeleccionado
+    };
+    
+    $.ajax({
+        url: "http://localhost:5000/api/establecerArchivoSeleccionado",
+        type: "PUT", // Método HTTP
+        contentType: "application/json", // Especifica el tipo de contenido
+        data: JSON.stringify(parametro), // Convierte el objeto en una cadena JSON
+        success: function (dato) {
+            
+            //si no se ha seleccionado un tipo de tarea (pendiente, realizada, ...)
+            if(tareaSeleccionada < 0){
+
+                menuPendienteRealizada();
+
+            }//si ya se selecciono un tipo de tarea entonces se vuelve a cargar ese menu ya seleccionado
+            else{
+
+                menuEjecutar[tareaSeleccionada]();
+
+            }
+
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error("Error al realizar la solicitud:", textStatus, errorThrown);
+        }
+    });
+
+};
