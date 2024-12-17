@@ -397,7 +397,7 @@ const cambiarOrden = () => {
 
     //Al cambiar el orden, retrocede hacia la pagina 1 o a la pagina 0
     //si no tiene tareas disponibles
-    const pagina = (1 <= totalPagina) ? 1 : 0;
+    const pagina = (totalPagina < 1) ? 0 : 1;
 
     paginacion(pagina);
 
@@ -526,6 +526,9 @@ const cargarListaTareas = () => {
         success: function (dato) {
 
             dato.forEach(archivo => {
+
+                console.log(archivo);
+
                 var opcion = $('<option>', {
                     text: archivo.split('.')[0],
                     value: archivo
@@ -536,8 +539,14 @@ const cargarListaTareas = () => {
             });
 
             //si solo existe un archivo para seleccionar entonces se selecciona de manera automatica
-            if(dato.length == 1){
+            if(dato.length === 1){
+
+                //reflejar el archivo seleccionado en el select
+                const $defaultOption = $('#defaultOption');
+                $defaultOption.prop('selected', true);
+
                 establecerArchivoSeleccionado(dato[0]);
+
             }
             
         },
