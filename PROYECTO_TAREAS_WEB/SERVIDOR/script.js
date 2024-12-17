@@ -600,8 +600,7 @@ async function obtenerArchivosDisponibles(){
     
     return new Promise((resolve, reject) => {
 
-        const rutaArchivo = 'C:/Users/Miguel/Desktop/RUBY/PROYECTO_TAREAS - ORIGINAL/FILE_OPTION.txt';
-
+        const rutaArchivo = path.resolve(rutas.archivoTareasDisponibles);
         const archivoStream = fs.createReadStream(rutaArchivo);
 
         const rl = readline.createInterface({
@@ -619,7 +618,18 @@ async function obtenerArchivosDisponibles(){
 
             //prevenir el character BOM de la primera linea, del arreglo            
             if(archivos.length !== 0){
+
                 archivos[0] = archivos[0].trim();
+
+            }
+
+            //cabe la posibilidad que solo se encuentre el "BOM" que ya fue limpiado en el archivo
+            //lo que quedara es una cadena vacia
+            if(archivos.length === 1 && archivos[0] === ""){
+
+                //remove the elements
+                archivos.length = 0;
+
             }
 
             resolve(archivos);
@@ -638,13 +648,13 @@ async function establecerArchivoSeleccionado(archivo){
 
     try{
 
-        var rutaResuelta = path.resolve(`${rutas.directorioTareas}/${archivo}`);
+        const rutaResuelta = path.resolve(`${rutas.directorioTareas}/${archivo}`);
 
         rutaArchivoTarea = rutaResuelta;
         
         //volver a actualizar la cantidad de tareas disponibles para el nuevo archivo
-        const resultado = await obtenerCantidadTarea();
-        cantidadPendienteRealizada = resultado.cantidadPendienteRealizada;
+        const cantidadTarea = await obtenerCantidadTarea();
+        cantidadPendienteRealizada = cantidadTarea.cantidadPendienteRealizada;
 
         return {resultado: true};
 
@@ -656,7 +666,7 @@ async function establecerArchivoSeleccionado(archivo){
 
 }
 
-// Exporta la función para que pueda ser utilizada en otros archivos
+//Exporta la función para que pueda ser utilizada en otros archivos
 module.exports = {
     tareaPendienteAntigua,
     tareaPendienteReciente,
