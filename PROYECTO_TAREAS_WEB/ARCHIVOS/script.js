@@ -527,8 +527,6 @@ const cargarListaTareas = () => {
 
             dato.forEach(archivo => {
 
-                console.log(archivo);
-
                 var opcion = $('<option>', {
                     text: archivo.split('.')[0],
                     value: archivo
@@ -542,9 +540,9 @@ const cargarListaTareas = () => {
             if(dato.length === 1){
 
                 //reflejar el archivo seleccionado en el select
-                const $defaultOption = $('#defaultOption');
-                $defaultOption.prop('selected', true);
-
+                const $selectTarea = $('#selectTarea');
+                $selectTarea.prop('selectedIndex', 1);
+                
                 establecerArchivoSeleccionado(dato[0]);
 
             }
@@ -563,7 +561,7 @@ const cargarListaTareas = () => {
 
 const establecerArchivoSeleccionado = (opcion) => {
 
-    const archivoSeleccionado = opcion.value.toString();
+    const archivoSeleccionado = opcion;
     
     const menuEjecutar = [
         menuPendiente,
