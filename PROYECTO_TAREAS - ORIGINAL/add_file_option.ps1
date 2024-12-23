@@ -1,6 +1,8 @@
 
 $DestinyFile = ".\FILE_OPTION.txt"
 
+$OriginDirectory = ".\Dir_List_Task"
+
 #The extension admitted to read
 $ValidExtension = @("txt")
 
@@ -22,4 +24,4 @@ function Get-FileException($FileName){
 
 (type nul > $DestinyFile ) 2>$null
 
-dir | sort | foreach{if(-not(Get-FileException($_.Name))){$_.Name | Out-File -FilePath $DestinyFile -Append -Encoding UTF8}}
+dir $OriginDirectory | sort | foreach{if(-not(Get-FileException($_.Name))){$_.Name | Out-File -FilePath $DestinyFile -Append -Encoding UTF8}}

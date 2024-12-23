@@ -7,22 +7,4 @@ require "io/console"
 @console = Console_controller.instance
 @menu = Menu.new
 
-cadena = "10.5 + 20"
-expresion_regular = /\+\s\d+/
-
-cadena = "function(argumentos, argumentos)"
-expresion_regular = /(.*?)\((.*?)\)/
-
-puts "#{cadena.match(expresion_regular).captures[0]}"
-
-input = "Esta es una cadena de texto"
-
-if(input.match?(/\//))
-
-    puts "coincide"
-
-else
-
-    puts "no"
-
-end
+#comprobar como se comportan los arrays con 3 dimensiones

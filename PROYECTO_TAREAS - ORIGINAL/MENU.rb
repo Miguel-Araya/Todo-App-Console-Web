@@ -2,42 +2,78 @@ require "io/console"
 require_relative "TASK.rb"
 require_relative "SHAPE.rb"
 require_relative "CONSOLE_CONTROLLER.rb"
+require_relative "UTILITY.rb"
 
 class Menu
  
- @@console = Console_controller.instance
+  @@console = Console_controller.instance
 
- @@task = nil
+  @@task = nil
 
- @@shape = Shape.new
+  @@shape = Shape.new
+
+  @@paths = Utility.get_json("paths.json")
 
   def init
+
+    print @@console.get_utility("CLEAN_SCREEN")
 
     #Load the first menu to select the file that contain the tasks
     result = load_menu_file
     
-    if result == -1
+    confirm_out = false
+    
+    if result < 0
 
       @@console.apply_margin
-      @@console.cancel_message("File not exists or is empty\n")
-      wait_enter
-      return
+      @@console.cancel_message("No files found.\n")
+
+      puts "#{@@console.get_space}You want to create a new file?\n\n"
+
+      confirm_out = wait_confirm("to create the file")
+
+      if confirm_out
+
+        return
+
+      end
+
+      #The user want to create a new file
+
+      #if not create a new file
+      if !exec_create_file
+
+        print @@console.get_utility("CLEAN_SCREEN")
+
+        @@console.apply_margin 
+        @@console.cancel_message("No file created\n")
+
+        return 
+
+      end
+
+      return if load_menu_file < 0
 
     end
+
+    @@console.get_utility("CLEAN_SCREEN")
 
     #variables to init the menu
     menu_option = []
     menu_method = []
     menu_level = 1
 
-    principal_menu_option = ["◉ Exit", "◉ Select file", "◉ Add task", "◉ Seek ▼", "◉ Delete ▼", "◉ Update", "◉ Mark as done ▼", "◉ Unmark task ▼", "◉ Status of tasks"]
-    principal_menu_method = ["load_menu_file", "exec_add", "menu", "menu", "exec_update", "menu", "menu", "exec_status_task"]
+    principal_menu_option = ["◉ Exit", "◉ Task file ▼", "◉ Add task", "◉ Seek ▼", "◉ Delete ▼", "◉ Update", "◉ Mark as done ▼", "◉ Unmark task ▼", "◉ Status of tasks"]
+    principal_menu_method = ["menu", "exec_add", "menu", "menu", "exec_update", "menu", "menu", "exec_status_task"]
     #menu_style = ["box_style" ,"box_color", "text_color", selected_icon]
     #principal_menu_style = ["dotted", "CYAN", nil, nil]
 
     sub_menu_seek = ["◌ Back", "◌ Seek specific", "◌ Seek partial"]
     sub_menu_method_seek = ["exec_seek_specific", "exec_seek_partial"]
     #sub_menu_seek_style = ["dotted", "GREEN", nil]
+
+    sub_menu_task_file = ["◌ Back","◌ Select file","◌ Create file"]
+    sub_menu_method_task_file = ["load_menu_file", "exec_create_file"]
 
     sub_menu_delete = ["◌ Back","◌ Delete specific","◌ Delete partial","◌ Delete unmark tasks","◌ Delete mark tasks","◌ Delete a set of tasks","◌ Delete by range"]
     sub_menu_method_delete = ["exec_delete_specific", "exec_delete_partial", "exec_delete_unmark", "exec_delete_mark", "exec_delete_set", "exec_delete_range"]
@@ -50,8 +86,8 @@ class Menu
     sub_menu_unmark = ["◌ Back","◌ Unmark specific","◌ Unmark partial"]
     sub_menu_method_unmark = ["exec_unmark_specific", "exec_unmark_partial"]
     
-    sub_menu_1 = [sub_menu_seek, sub_menu_delete, sub_menu_mark, sub_menu_unmark]
-    sub_menu_method_1 = [sub_menu_method_seek, sub_menu_method_delete, sub_menu_method_mark, sub_menu_method_unmark]
+    sub_menu_1 = [sub_menu_task_file, sub_menu_seek, sub_menu_delete, sub_menu_mark, sub_menu_unmark]
+    sub_menu_method_1 = [sub_menu_method_task_file, sub_menu_method_seek, sub_menu_method_delete, sub_menu_method_mark, sub_menu_method_unmark]
     #sub_menu_style_1 = [sub_menu_seek_style, sub_menu_delete_style, sub_menu_mark_style]
 
     menu_option = [principal_menu_option, sub_menu_1]
@@ -65,6 +101,77 @@ class Menu
     
   end
   
+  def exec_create_file
+
+    confirm_out = false
+
+    create_new_file = false
+    
+    while !confirm_out
+      @@console.apply_margin
+
+      puts "#{@@console.get_space}Write the #{@@console.get_color("GREEN")}NAME#{@@console.get_color("DEFAULT")} of the file"
+      puts "#{@@console.get_space}Write a #{@@console.get_color("GREEN")}VALID#{@@console.get_color("DEFAULT")} name"
+      puts "#{@@console.get_space}No #{@@console.get_color("GREEN")}SPECIAL CHARACTERS OR NUMBERS#{@@console.get_color("DEFAULT")} are allowed"
+      puts "\n#{@@console.get_space}Press #{@@console.get_color("CYAN")}enter#{@@console.get_color("DEFAULT")} to create\n\n\n"
+
+      print "#{@@console.get_space}FILE -> "
+      print "#{@@console.get_color("CYAN")}"
+      file_name = gets
+      file_name = file_name.strip
+      print "#{@@console.get_color("DEFAULT")}"
+
+      print "#{@@console.get_utility("CLEAN_SCREEN")}"
+      print "#{@@console.apply_margin}"
+
+      if file_name.empty? || !Utility.is_valid_file_name(file_name)
+        @@console.apply_margin
+        @@console.cancel_message("Invalid name\n")
+
+        confirm_out = wait_confirm("creating files")
+        next
+      end
+
+      #Join the path with the name of the file
+      file_path = File.join(@@paths["DirectoryListTask"], "#{file_name}.txt")
+
+      #Make sure that the file not exists
+      if File.exist?(file_path)
+        @@console.apply_margin
+        
+        @@console.cancel_message("The file already exists\n")
+        @@console.cancel_message("Choose another name\n")
+        
+        confirm_out = wait_confirm("creating files")
+        
+        next
+
+      end
+
+      begin
+
+        File.new(file_path, "w").close
+
+        File.open(@@paths["FileListOption"], "a") do |file|
+          file.puts("#{file_name}.txt")
+        end
+
+      rescue StandardError => e
+        @@console.cancel_message("Error creating the file")
+      end
+
+      @@console.confirm_message("File \"#{file_name}\" created\n")
+
+      create_new_file = true
+
+      confirm_out = wait_confirm("creating files")
+
+    end #while loop
+
+    return create_new_file
+
+  end 
+
   def load_menu_file
 
     max_char_size = 8 #the limit of characters to check if the file is empty
@@ -73,8 +180,6 @@ class Menu
     file_task_option = "FILE_OPTION.txt"
     task_menu_option = []
     task_menu_method = []
-
-    print @@console.get_utility("CLEAN_SCREEN")
 
     if !File.exist?(file_task_option) || File.zero?(file_task_option)
       return -1
@@ -107,7 +212,22 @@ class Menu
     end
     
     #Make a default selection if the user dont choose an option
-    @@task = Task.new(task_menu_option[-1])
+    if task_menu_option.size == 1
+
+      @@task = Task.new(File.join(@@paths["DirectoryListTask"],task_menu_option[0]))
+      
+      @@console.apply_margin
+      @@console.confirm_message("File \"#{task_menu_option[0].split(".")[0]}\" selected")
+      @@console.confirm_message("Is the unique file available\n")
+
+      wait_enter
+
+      print @@console.get_utility("CLEAN_SCREEN")
+
+    end
+    
+    #Select one file by default if the user dont choose one
+    @@task = Task.new(File.join(@@paths["DirectoryListTask"],task_menu_option[-1]))
 
     for i in 0..task_menu_option.size-1
 
@@ -127,7 +247,9 @@ class Menu
 
     #if exists more than 1 file to select
     if task_menu_method.size > 1
+
       exec_menu(menu_option, menu_method, menu_level-1)
+
     end
 
     return 0
@@ -153,7 +275,7 @@ class Menu
   
   def set_task(task_file)
 
-    @@task = Task.new(task_file)
+    @@task = Task.new(File.join(@@paths["DirectoryListTask"],task_file))
 
     @@console.apply_margin
 
@@ -167,11 +289,8 @@ class Menu
     
     puts "\n"
 
-    puts "#{@@console.get_space}#{@@console.get_utility("BOLD")}#{@@console.get_utility("UNDERLINE")}down key arrow#{@@console.get_color("DEFAULT")}"
-    puts "#{@@console.get_space}AND"
-    puts "#{@@console.get_space}#{@@console.get_utility("BOLD")}#{@@console.get_utility("UNDERLINE")}up key arrow#{@@console.get_color("DEFAULT")}"
-    puts "#{@@console.get_space}to navigate\n\n"
-    puts "#{@@console.get_space}#{@@console.get_utility("BOLD")}#{@@console.get_utility("UNDERLINE")}enter#{@@console.get_color("DEFAULT")} to confirm"
+    puts "#{@@console.get_space}Navigate with #{@@console.get_utility("UNDERLINE")}#{@@console.get_utility("BOLD")}up, down#{@@console.get_utility("DEFAULT")}"
+    puts "#{@@console.get_space}#{@@console.get_utility("BOLD")}#{@@console.get_utility("UNDERLINE")}and enter#{@@console.get_color("DEFAULT")} keys"
   end
 
   def exec_menu(menu_option, menu_method, menu_level, menu_style = nil)
@@ -233,7 +352,8 @@ class Menu
       print "#{@@console.get_utility("CLEAN_SCREEN")}"
 
     end #loop
-  end
+
+  end #function
 
   def get_menu_index(menu_method, menu_level, option)
 
@@ -954,7 +1074,7 @@ class Menu
       @@console.apply_margin
       @@task.delete_line(save_line)
   
-      # Delete the tasks
+      #Delete the tasks
       save_line = []
   
       print "\n"
