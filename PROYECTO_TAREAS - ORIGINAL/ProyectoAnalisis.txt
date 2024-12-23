@@ -1,2 +1,0 @@
-Revisar el video de analisis para saber si son todas las clases de las distintas capas las que se deben realizar. Fecha: 19/09/2024
-Agregar la parte de prototipos para la bitacora de analisis. Fecha: 19/09/2024
