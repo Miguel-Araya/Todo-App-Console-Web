@@ -68,30 +68,55 @@ class Menu
     #menu_style = ["box_style" ,"box_color", "text_color", selected_icon]
     #principal_menu_style = ["dotted", "CYAN", nil, nil]
 
-    sub_menu_seek = ["◌ Back", "◌ Seek specific", "◌ Seek partial"]
-    sub_menu_method_seek = ["exec_seek_specific", "exec_seek_partial"]
-    #sub_menu_seek_style = ["dotted", "GREEN", nil]
+    #Start create secondMenu
 
-    sub_menu_task_file = ["◌ Back","◌ Select file","◌ Create file"]
-    sub_menu_method_task_file = ["load_menu_file", "exec_create_file"]
+    second_menu_seek = ["◌ Back", "◌ Seek specific", "◌ Seek partial"]
+    second_menu_method_seek = ["exec_seek_specific", "exec_seek_partial"]
+    #second_menu_seek_style = ["dotted", "GREEN", nil]
 
-    sub_menu_delete = ["◌ Back","◌ Delete specific","◌ Delete partial","◌ Delete unmark tasks","◌ Delete mark tasks","◌ Delete a set of tasks","◌ Delete by range"]
-    sub_menu_method_delete = ["exec_delete_specific", "exec_delete_partial", "exec_delete_unmark", "exec_delete_mark", "exec_delete_set", "exec_delete_range"]
-    #sub_menu_delete_style = ["dotted", "RED", nil]
+    second_menu_task_file = ["◌ Back","◌ Select file","◌ Create file", "◌ Delete file ▼"]
+    second_menu_method_task_file = ["load_menu_file", "exec_create_file", "menu"]
 
-    sub_menu_mark = ["◌ Back","◌ Mark specific","◌ Mark partial"]
-    sub_menu_method_mark = ["exec_mark_specific", "exec_mark_partial"]
-    #sub_menu_mark_style = ["bubble", "GREEN", nil]
+    second_menu_delete = ["◌ Back","◌ Delete specific","◌ Delete partial","◌ Delete unmark tasks","◌ Delete mark tasks","◌ Delete a set of tasks","◌ Delete by range"]
+    second_menu_method_delete = ["exec_delete_specific", "exec_delete_partial", "exec_delete_unmark", "exec_delete_mark", "exec_delete_set", "exec_delete_range"]
+    #second_menu_delete_style = ["dotted", "RED", nil]
 
-    sub_menu_unmark = ["◌ Back","◌ Unmark specific","◌ Unmark partial"]
-    sub_menu_method_unmark = ["exec_unmark_specific", "exec_unmark_partial"]
+    second_menu_mark = ["◌ Back","◌ Mark specific","◌ Mark partial"]
+    second_menu_method_mark = ["exec_mark_specific", "exec_mark_partial"]
+    #second_menu_mark_style = ["bubble", "GREEN", nil]
+
+    second_menu_unmark = ["◌ Back","◌ Unmark specific","◌ Unmark partial"]
+    second_menu_method_unmark = ["exec_unmark_specific", "exec_unmark_partial"]
     
-    sub_menu_1 = [sub_menu_task_file, sub_menu_seek, sub_menu_delete, sub_menu_mark, sub_menu_unmark]
-    sub_menu_method_1 = [sub_menu_method_task_file, sub_menu_method_seek, sub_menu_method_delete, sub_menu_method_mark, sub_menu_method_unmark]
-    #sub_menu_style_1 = [sub_menu_seek_style, sub_menu_delete_style, sub_menu_mark_style]
+    second_menu_option = [second_menu_task_file, second_menu_seek, second_menu_delete, second_menu_mark, second_menu_unmark]
+    second_menu_method = [second_menu_method_task_file, second_menu_method_seek, second_menu_method_delete, second_menu_method_mark, second_menu_method_unmark]
+    #second_menu_style_1 = [second_menu_seek_style, second_menu_delete_style, second_menu_mark_style]
+    
+    #End create secondMenu
 
-    menu_option = [principal_menu_option, sub_menu_1]
-    menu_method = [principal_menu_method, sub_menu_method_1]
+    #Start create thirdMenu 
+    
+    #Start menu for the third level of the file
+
+    third_menu_delete_file = ["◈ Back","◈ Delete file"]
+    third_menu_method_delete_file = ["exec_delete_file"]
+
+    #End menu for the third level of the file
+
+    #Start agroup in the menu of file
+
+    third_menu_file = [third_menu_delete_file]
+    third_menu_method_file = [third_menu_method_delete_file]
+
+    #End agroup in the menu of file
+
+    third_menu_option = [third_menu_file]
+    third_menu_method = [third_menu_method_file]
+
+    #End create thirdMenu
+
+    menu_option = [principal_menu_option, second_menu_option, third_menu_option]
+    menu_method = [principal_menu_method, second_menu_method, third_menu_method]
     #menu_style = [principal_menu_style]
 
     menu_level = 1
@@ -171,6 +196,13 @@ class Menu
     return create_new_file
 
   end 
+
+  def exec_delete_file
+    
+    puts "File deleted"
+    wait_enter
+
+  end
 
   def load_menu_file
 
@@ -297,6 +329,8 @@ class Menu
         
     option = 1
     enter = false
+    is_third_menu_selected = false
+    third_menu_index = -1
 
     loop do
 
@@ -339,11 +373,19 @@ class Menu
 
           index_next_menu = get_menu_index(menu_method, menu_level, option-1)
 
-          exec_sub_menu(menu_option, menu_method, menu_level+1, index_next_menu, menu_style)
+          is_third_menu_selected, third_menu_index, option_previous = exec_second_menu(menu_option, menu_method, menu_level+1, index_next_menu, menu_style, 1)
 
+          if is_third_menu_selected
+
+            exec_third_menu(menu_option[menu_level+2][index_next_menu][third_menu_index], menu_method[menu_level+2][index_next_menu][third_menu_index])
+            
+            exec_second_menu(menu_option, menu_method, menu_level+1, index_next_menu, menu_style, option_previous)
+            
+          end
+          
         else
         
-        send(:eval, menu_method[menu_level][option-1])
+          send(:eval, menu_method[menu_level][option-1])
         
         end
 
@@ -373,29 +415,29 @@ class Menu
   
   end
   
-  def exec_sub_menu(sub_menu_option, sub_menu_method, sub_menu_level, index_sub_menu, sub_menu_style = nil)
+  def exec_third_menu(third_menu_option, third_menu_method, third_menu_style = nil)
 
     option = 1
     enter = false
 
     loop do
 
-      if sub_menu_style != nil && sub_menu_style[sub_menu_level] != nil
+      if third_menu_style != nil
         
-        @@shape.draw_box_menu(sub_menu_option[sub_menu_level][index_sub_menu], option, *sub_menu_style[sub_menu_level][index_sub_menu])
+        @@shape.draw_box_menu(third_menu_option, option, *third_menu_style)
 
       else
 
-        @@shape.draw_box_menu(sub_menu_option[sub_menu_level][index_sub_menu], option)
+        @@shape.draw_box_menu(third_menu_option, option)
 
       end
 
       input = read_char
       input = input.strip
-      
+
       print @@console.get_utility("CLEAN_SCREEN")
-      
-      if input_key(input, option, sub_menu_option[sub_menu_level][index_sub_menu].size) == -1
+
+      if input_key(input, option, third_menu_option.size) == -1
 
         if option == 0
           break
@@ -405,7 +447,56 @@ class Menu
 
       else
 
-        option = input_key(input, option, sub_menu_option[sub_menu_level][index_sub_menu].size)
+        option = input_key(input, option, third_menu_option.size)
+
+      end
+      
+      if enter
+
+        enter = false
+        
+        send(:eval, third_menu_method[option-1])
+
+      end
+
+      print "#{@@console.get_utility("CLEAN_SCREEN")}"
+
+    end #loop
+    
+  end
+
+  def exec_second_menu(second_menu_option, second_menu_method, second_menu_level, index_second_menu, second_menu_style = nil, option)
+
+    enter = false
+
+    loop do
+
+      if second_menu_style != nil && second_menu_style[second_menu_level] != nil
+        
+        @@shape.draw_box_menu(second_menu_option[second_menu_level][index_second_menu], option, *second_menu_style[second_menu_level][index_second_menu])
+
+      else
+
+        @@shape.draw_box_menu(second_menu_option[second_menu_level][index_second_menu], option)
+
+      end
+
+      input = read_char
+      input = input.strip
+      
+      print @@console.get_utility("CLEAN_SCREEN")
+      
+      if input_key(input, option, second_menu_option[second_menu_level][index_second_menu].size) == -1
+
+        if option == 0
+          break
+        end
+
+        enter = true
+
+      else
+
+        option = input_key(input, option, second_menu_option[second_menu_level][index_second_menu].size)
 
       end
 
@@ -413,32 +504,36 @@ class Menu
 
         enter = false
         
-        if sub_menu_method[sub_menu_level][index_sub_menu][option-1] == "menu"
+        if second_menu_method[second_menu_level][index_second_menu][option-1] == "menu"
 
-          index_next_menu = get_sub_menu_index(sub_menu_method, sub_menu_level, index_sub_menu, option-1)
+          index_next_menu = get_second_menu_index(second_menu_method, second_menu_level, index_second_menu, option-1)
 
-          exec_sub_menu(sub_menu_option, sub_menu_method, sub_menu_level+1, index_next_menu)
-  
+          #1-> if the user select a menu, 2-> what menu is selected
+          return [true, index_next_menu, option]
+          
         else
 
-          send(:eval, sub_menu_method[sub_menu_level][index_sub_menu][option-1])
+          send(:eval, second_menu_method[second_menu_level][index_second_menu][option-1])
           
         end
 
       end
 
       print "#{@@console.get_utility("CLEAN_SCREEN")}"
+
     end
     
+    return [false, 0, 0]
+
   end
 
-  def get_sub_menu_index(sub_menu_method, sub_menu_level, index_sub_menu, option)
+  def get_second_menu_index(second_menu_method, second_menu_level, index_second_menu, option)
 
     count = -1
   
-    for i in 0..index_sub_menu-1
+    for i in 0..index_second_menu-1
   
-      sub_menu_method[sub_menu_level][i].each do |element|
+      second_menu_method[second_menu_level][i].each do |element|
   
         if element == "menu"
   
@@ -452,7 +547,7 @@ class Menu
   
     for i in 0..option
   
-      if sub_menu_method[sub_menu_level][index_sub_menu][i] == "menu"
+      if second_menu_method[second_menu_level][index_second_menu][i] == "menu"
   
         count+=1
   
@@ -463,7 +558,7 @@ class Menu
     return count
   
   end
-  
+
   def exec_mark_specific
     
     save_line = get_task_by_category_line(0)
