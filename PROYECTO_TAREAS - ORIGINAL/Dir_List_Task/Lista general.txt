@@ -1,4 +1,3 @@
-Generar una idea para crear un proyecto en Angular Fecha: 26/12/2024
 Repasar y revisar principios SOLID y patrones de diseño y principios SOLID en UDEMY o un libro digital. Fecha: 26/12/2024
 Llevar un curso de Excel Fecha: 26/12/2024
 Implementar rutinas en el celular Samsung. Fecha: 27/12/2024
