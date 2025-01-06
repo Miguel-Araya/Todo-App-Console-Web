@@ -74,8 +74,18 @@ class Shape
     puts ""
   end
   
+  def file_line(file)
+
+    #remove the extension of the file
+    file = File.basename(file, ".*")
+    file = file.strip
+    puts "#{@@console.get_bg_color("CYAN")}#{@@console.get_color("BLACK")}>#{@@console.get_bg_color("DEFAULT")} #{file}"
+    puts ""
+
+  end
+
   def mark_task(task)
-    #check = "\u2713"
+    
     puts "#{@@console.get_bg_color("GREEN")}#{@@console.get_color("BLACK")}✓#{@@console.get_bg_color("DEFAULT")} #{task}"
     puts ""
   end
@@ -86,7 +96,7 @@ class Shape
     puts ""
 
   end
- 
+
   def get_max_length_menu_option(menu_option)
     max = 0
 

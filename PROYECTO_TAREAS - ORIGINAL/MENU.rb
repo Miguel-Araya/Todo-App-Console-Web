@@ -5,7 +5,7 @@ require_relative "CONSOLE_CONTROLLER.rb"
 require_relative "UTILITY.rb"
 
 class Menu
- 
+
   @@console = Console_controller.instance
 
   @@task = nil
@@ -74,8 +74,8 @@ class Menu
     second_menu_method_seek = ["exec_seek_specific", "exec_seek_partial"]
     #second_menu_seek_style = ["dotted", "GREEN", nil]
 
-    second_menu_task_file = ["◌ Back","◌ Select file","◌ Create file", "◌ Delete file ▼"]
-    second_menu_method_task_file = ["load_menu_file", "exec_create_file", "menu"]
+    second_menu_task_file = ["◌ Back","◌ Select file","◌ Create file", "◌ Seek file ▼", "◌ Delete file ▼"]
+    second_menu_method_task_file = ["load_menu_file", "exec_create_file", "menu", "menu"]
 
     second_menu_delete = ["◌ Back","◌ Delete specific","◌ Delete partial","◌ Delete unmark tasks","◌ Delete mark tasks","◌ Delete a set of tasks","◌ Delete by range"]
     second_menu_method_delete = ["exec_delete_specific", "exec_delete_partial", "exec_delete_unmark", "exec_delete_mark", "exec_delete_set", "exec_delete_range"]
@@ -98,15 +98,18 @@ class Menu
     
     #Start menu for the third level of the file
 
-    third_menu_delete_file = ["◈ Back","◈ Delete file"]
-    third_menu_method_delete_file = ["exec_delete_file"]
+    third_menu_seek_file = ["◈ Back", "◈ Seek specific file", "◈ Seek partial file"]
+    third_menu_method_seek_file = ["exec_file_option_function(\"exec_seek_specific(1)\")", "exec_file_option_function(\"exec_seek_partial(1)\")"]
+
+    third_menu_delete_file = ["◈ Back", "◈ Delete specific file", "◈ Delete partial file", "◈ Delete by range file"]
+    third_menu_method_delete_file = ["exec_file_option_function(\"exec_delete_specific(1)\")", "", ""]
 
     #End menu for the third level of the file
 
     #Start agroup in the menu of file
 
-    third_menu_file = [third_menu_delete_file]
-    third_menu_method_file = [third_menu_method_delete_file]
+    third_menu_file = [third_menu_seek_file, third_menu_delete_file]
+    third_menu_method_file = [third_menu_method_seek_file, third_menu_method_delete_file]
 
     #End agroup in the menu of file
 
@@ -197,10 +200,15 @@ class Menu
 
   end 
 
-  def exec_delete_file
-    
-    puts "File deleted"
-    wait_enter
+  def exec_file_option_function(function)
+
+    previous_file = @@task.get_file
+
+    @@task.set_file(@@paths["FileListOption"])
+
+    send(:eval, function)
+
+    @@task.set_file(previous_file)
 
   end
 
@@ -375,14 +383,16 @@ class Menu
 
           is_third_menu_selected, third_menu_index, option_previous = exec_second_menu(menu_option, menu_method, menu_level+1, index_next_menu, menu_style, 1)
 
-          if is_third_menu_selected
+          while is_third_menu_selected
 
             exec_third_menu(menu_option[menu_level+2][index_next_menu][third_menu_index], menu_method[menu_level+2][index_next_menu][third_menu_index])
             
-            exec_second_menu(menu_option, menu_method, menu_level+1, index_next_menu, menu_style, option_previous)
-            
+            is_third_menu_selected, third_menu_index, option_previous = exec_second_menu(menu_option, menu_method, menu_level+1, index_next_menu, menu_style, option_previous)
+
           end
           
+          option = option_previous
+
         else
         
           send(:eval, menu_method[menu_level][option-1])
@@ -418,6 +428,7 @@ class Menu
   def exec_third_menu(third_menu_option, third_menu_method, third_menu_style = nil)
 
     option = 1
+
     enter = false
 
     loop do
@@ -467,6 +478,8 @@ class Menu
 
   def exec_second_menu(second_menu_option, second_menu_method, second_menu_level, index_second_menu, second_menu_style = nil, option)
 
+    selected_menu_option = option
+
     enter = false
 
     loop do
@@ -498,6 +511,8 @@ class Menu
 
         option = input_key(input, option, second_menu_option[second_menu_level][index_second_menu].size)
 
+        selected_menu_option = (option <= 0 ? 1 : option)
+
       end
 
       if enter
@@ -509,7 +524,7 @@ class Menu
           index_next_menu = get_second_menu_index(second_menu_method, second_menu_level, index_second_menu, option-1)
 
           #1-> if the user select a menu, 2-> what menu is selected
-          return [true, index_next_menu, option]
+          return [true, index_next_menu, selected_menu_option]
           
         else
 
@@ -523,7 +538,7 @@ class Menu
 
     end
     
-    return [false, 0, 0]
+    return [false, 0, 1]
 
   end
 
@@ -920,8 +935,11 @@ class Menu
       confirm_out = wait_confirm("updating")
     end
   end
- 
-  def exec_delete_specific
+  
+  #delete mode
+  #0 -> Normal task
+  #1 -> File
+  def exec_delete_specific(delete_mode = 0)
     
     confirm_out = false
 
@@ -973,7 +991,7 @@ class Menu
 
       end
 
-      pagination_line([index], 0)
+      pagination_line([index], 0, delete_mode)
 
       @@console.apply_margin
             
@@ -995,7 +1013,7 @@ class Menu
 
       @@console.apply_margin 
       
-      @@task.delete_line([index-1])
+      @@task.delete_line([index], delete_mode)
 
       print "\n"
 
@@ -1345,11 +1363,15 @@ class Menu
     
   end
 
-  def pagination_line(save_line, page)
+  #the display_mode is used to know if the pagination is for a normal task or 
+  #for a file or another specific type
+  #0 -> normal task
+  #1 -> file
+  def pagination_line(save_line, page, display_mode = 0)
 
     limit_page = (save_line.size / (@@console.size_show_line + 0.0)).ceil
     
-    start_index = 0 
+    start_index = 0
 
     end_index = 0
 
@@ -1390,7 +1412,7 @@ class Menu
         
       @@console.apply_margin
 
-      @@task.pagination_line(save_line[start_index..end_index-1], page)
+      @@task.pagination_line(save_line[start_index..end_index-1], page, display_mode)
 
       print "\n" 
     
@@ -1532,7 +1554,7 @@ class Menu
     
   end
 
-  def pagination_byte(save_byte, page)
+  def pagination_byte(save_byte, page, display_mode = 0)
 
     limit_page = (save_byte.size / (@@console.size_show_line + 0.0)).ceil
     
@@ -1578,7 +1600,7 @@ class Menu
         
       @@console.apply_margin
 
-      @@task.pagination_byte(save_byte[start_index..end_index-1], page)
+      @@task.pagination_byte(save_byte[start_index..end_index-1], page, display_mode)
 
       print "\n" 
     
@@ -1843,7 +1865,8 @@ class Menu
     end
   end
   
-  def exec_seek_specific
+  def exec_seek_specific(display_mode = 0)
+    
     confirm_out = false
   
     while !confirm_out
@@ -1878,7 +1901,7 @@ class Menu
         next
       end
   
-      pagination_line([index], 0)
+      pagination_line([index], 0, display_mode)
       @@console.apply_margin
       confirm_out = wait_confirm("seeking")
     end
@@ -1900,7 +1923,7 @@ class Menu
   end
 
 
-  def exec_seek_partial
+  def exec_seek_partial(display_mode = 0)
 
     save_byte = get_task_by_category_byte(1)
     partial_byte = []
@@ -1919,7 +1942,7 @@ class Menu
       print "#{@@console.get_color("DEFAULT")}"
 
       partial_byte = @@task.get_byte_partial(save_byte, content)
-      pagination_byte(partial_byte, 0)
+      pagination_byte(partial_byte, 0, display_mode)
 
       @@console.apply_margin
       confirm_out = wait_confirm("seeking")

@@ -1,18 +1,33 @@
 require "date"
 require_relative "SHAPE.rb"
+require_relative "UTILITY.rb"
 require_relative "CONSOLE_CONTROLLER.rb"
 
 class Task
 
- def initialize(task_file)
+  def initialize(task_file)
     @file = task_file
     @@temp_file = "TEMP_FILE.txt"
     @size = calc_size()
+    @@paths = Utility.get_json("paths.json")
     @@shape = Shape.new
     @@console = Console_controller.instance
     @separate_symbol = "~"
- end
-  
+  end
+ 
+  def set_file(file)
+
+    @file = file
+    @size = calc_size()
+
+  end
+
+  def get_file
+
+    return @file
+
+  end
+
   def get_pending_byte
     save_byte = []
     quantity_byte = 0
@@ -69,7 +84,7 @@ class Task
     return save_byte
   end
   
-  def pagination_byte(save_byte, page)
+  def pagination_byte(save_byte, page, display_mode = 0)
     if isEmpty
       @@console.cancel_message("The file is empty")
       return
@@ -80,7 +95,13 @@ class Task
       @@console.cancel_message("Not exists tasks to continue")
       return
     end
-  
+    
+    exeption_display = {
+
+      1 => @@shape.method(:file_line)
+
+    }
+
     num_task = page * @@console.size_show_line
   
     File.open(@file, "r") do |file|
@@ -90,6 +111,14 @@ class Task
         task = get_task(line)
         num_task += 1
         
+        if display_mode > 0
+
+          exeption_display[display_mode].call("#{num_task}) #{task}")
+
+          next
+
+        end
+
         if is_mark(line)
 
           @@shape.mark_task("#{num_task}) #{task}")
@@ -145,15 +174,25 @@ class Task
     
   end
   
-  def delete_line(partial_line)
+  #delete_mode 
+  #0 -> normal
+  #1 -> file
+
+  def delete_line(partial_line, delete_mode = 0)
     count_line = 1
     num_line = 0
-  
+
+    exception_delete = {
+
+      1 => method(:delete_file_line)
+
+    }
+
     File.open(@file, "r") do |file|
       File.open(@@temp_file, "w") do |temp_file|
         for i in 0..partial_line.size-1
           num_line = partial_line[i]
-  
+
           while count_line < num_line
             temp_file.write(file.gets)
             count_line += 1
@@ -169,13 +208,19 @@ class Task
         end
       end
     end
-  
+    
+    if delete_mode > 0
+
+      exception_delete[delete_mode].call(partial_line)
+
+    end
+
     File.rename("#{@@temp_file}", "TEMP.txt") 
   
     File.rename("#{@file}", "#{@@temp_file}")
   
     File.rename("TEMP.txt", "#{@file}")
-  
+    
     # make the temp file free of all the lines
     File.open(@@temp_file, "w") do |temp_file|
       temp_file.write("")
@@ -204,13 +249,6 @@ class Task
     @@console.confirm_message("Task added correctly")
      
     @size += 1
-
-  end
-
-  #NEEDS TO BE MODIFIED. IT IS USELESS.
-  def update_byte(save_line, content, index)
-    
-    #implement the method
 
   end
   
@@ -282,7 +320,34 @@ class Task
   
     @@console.confirm_message("Update correctly")
   end
-     
+
+  def delete_file_line(partial_line)
+
+    file_to_delete = ""
+    count_line = 1
+
+    File.open(@file, "r") do |file|
+
+      for i in 0..partial_line.size-1
+        num_line = partial_line[i]
+
+        while count_line < num_line
+          file.gets
+          count_line += 1
+        end 
+
+        file_to_delete = file.gets.strip
+
+        File.delete(File.join(@@paths["DirectoryListTask"], file_to_delete) )
+
+        count_line += 1
+
+      end
+
+    end
+
+  end
+
   def get_pending_line
 
     save_line = []
@@ -456,8 +521,13 @@ class Task
       end
     end
   end
-    
-  def pagination_line(save_line, page)
+
+  #display mode 
+  #0 -> normal
+  #1 -> file
+
+  def pagination_line(save_line, page, display_mode = 0)
+
     if isEmpty
       @@console.cancel_message("The file is empty")
       return
@@ -468,7 +538,13 @@ class Task
       @@console.cancel_message("Not exists tasks to continue")
       return
     end
-  
+    
+    exeption_display = {
+
+      1 => @@shape.method(:file_line)
+
+    }
+
     num_task = page * @@console.size_show_line
     count_line = 1
   
@@ -484,6 +560,16 @@ class Task
   
         num_task += 1
         
+        if display_mode > 0
+
+          exeption_display[display_mode].call("#{num_task}) #{task}")
+
+          count_line += 1
+
+          next
+
+        end
+
         if is_mark(line)
 
           @@shape.mark_task("#{num_task}) #{task}")
@@ -813,6 +899,5 @@ class Task
     end
 
   end 
- 
-  #include ListInterface
+
 end
