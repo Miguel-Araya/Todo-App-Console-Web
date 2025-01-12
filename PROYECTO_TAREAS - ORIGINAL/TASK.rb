@@ -17,8 +17,12 @@ class Task
  
   def set_file(file)
 
+    return -1 if !File.exist?(file)
+
     @file = file
     @size = calc_size()
+
+    return 0
 
   end
 
@@ -26,6 +30,16 @@ class Task
 
     return @file
 
+  end
+
+  def get_size
+
+    return @size
+
+  end
+
+  def set_size(size)
+    @size = size
   end
 
   def get_pending_byte
@@ -181,6 +195,7 @@ class Task
   def delete_line(partial_line, delete_mode = 0)
     count_line = 1
     num_line = 0
+    result_delete = 0
 
     exception_delete = {
 
@@ -209,9 +224,11 @@ class Task
       end
     end
     
+    @size -= partial_line.size
+
     if delete_mode > 0
 
-      exception_delete[delete_mode].call(partial_line)
+      result_delete = exception_delete[delete_mode].call(partial_line)
 
     end
 
@@ -225,11 +242,11 @@ class Task
     File.open(@@temp_file, "w") do |temp_file|
       temp_file.write("")
     end 
-  
-    @size -= partial_line.size
-  
+
     @@console.confirm_message("Delete correctly")
 
+    return result_delete
+    
   end
   
   def add(task)
@@ -325,6 +342,7 @@ class Task
 
     file_to_delete = ""
     count_line = 1
+    result_delete = 0
 
     File.open(@file, "r") do |file|
 
@@ -346,7 +364,11 @@ class Task
 
     end
 
-  end
+    return -1 if isEmpty
+
+    return result_delete
+
+  end #method
 
   def get_pending_line
 
@@ -659,7 +681,7 @@ class Task
   end
   
   def calc_size
-    
+
     size = 0
     
     File.foreach(@file) do |line|
@@ -761,10 +783,17 @@ class Task
 
   end
 
-  def delete_range(save_line)
+  def delete_range(save_line, delete_mode = 0)
     count_line = 1
     num_line = 0
-  
+    result_delete = 0
+
+    exception_delete = {
+
+      1 => method(:delete_file_line)
+
+    }
+
     File.open(@file, "r") do |file|
       File.open(@@temp_file, "w") do |temp_file|
         for i in 0..save_line.size-1
@@ -783,7 +812,15 @@ class Task
         end
       end
     end
-  
+    
+    @size -= save_line.size
+
+    if delete_mode > 0
+
+      result_delete = exception_delete[delete_mode].call(save_line)
+
+    end
+
     File.rename("#{@@temp_file}", "TEMP.txt")
     File.rename("#{@file}", "#{@@temp_file}")
     File.rename("TEMP.txt", "#{@file}")
@@ -793,9 +830,9 @@ class Task
       temp_file.write("")
     end
   
-    @size -= save_line.size
-  
     @@console.confirm_message("Delete correctly")
+
+    return result_delete
 
   end
   

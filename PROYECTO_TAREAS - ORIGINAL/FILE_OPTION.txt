@@ -1,1 +1,2 @@
-Lista general.txt
+nuevo archivo 1.txt
+nuevo archivo 2.txt
