@@ -102,7 +102,7 @@ class Menu
     third_menu_method_seek_file = ["exec_file_option_function(\"exec_seek_specific(1)\")", "exec_file_option_function(\"exec_seek_partial(1)\")"]
 
     third_menu_delete_file = ["◈ Back", "◈ Delete specific file", "◈ Delete partial file", "◈ Delete by range file"]
-    third_menu_method_delete_file = ["exec_file_option_function(\"exec_delete_specific(1)\")", "", ""]
+    third_menu_method_delete_file = ["exec_file_option_function(\"exec_delete_specific(1)\")", "exec_file_option_function(\"exec_delete_partial(1)\")", "exec_file_option_function(\"exec_delete_range(1)\")"]
 
     #End menu for the third level of the file
 
@@ -124,8 +124,10 @@ class Menu
 
     menu_level = 1
 
-    exec_menu(menu_option, menu_method, menu_level-1)
+    result = exec_menu(menu_option, menu_method, menu_level-1)
     #with menu style -> exec_menu(menu_option, menu_method, menu_level-1, menu_style)
+
+    puts result
     
   end
   
@@ -183,7 +185,13 @@ class Menu
         File.open(@@paths["FileListOption"], "a") do |file|
           file.puts("#{file_name}.txt")
         end
+        
+        if @@task.get_file == @@paths["FileListOption"]
 
+          @@task.set_size(@@task.get_size + 1)
+
+        end
+        
       rescue StandardError => e
         @@console.cancel_message("Error creating the file")
       end
@@ -199,17 +207,27 @@ class Menu
     return create_new_file
 
   end 
-
+  
   def exec_file_option_function(function)
 
     previous_file = @@task.get_file
 
     @@task.set_file(@@paths["FileListOption"])
 
-    send(:eval, function)
+    result_method = send(:eval, function)
 
-    @@task.set_file(previous_file)
+    return -1 if result_method == -1
 
+    result_method = @@task.set_file(previous_file)
+
+    if !@@task.isEmpty && result_method == -1
+
+      result_method = load_menu_file
+
+    end
+
+    return result_method
+    
   end
 
   def load_menu_file
@@ -337,8 +355,6 @@ class Menu
         
     option = 1
     enter = false
-    is_third_menu_selected = false
-    third_menu_index = -1
 
     loop do
 
@@ -381,17 +397,28 @@ class Menu
 
           index_next_menu = get_menu_index(menu_method, menu_level, option-1)
 
-          is_third_menu_selected, third_menu_index, option_previous = exec_second_menu(menu_option, menu_method, menu_level+1, index_next_menu, menu_style, 1)
+          #exec_second_method the return could be
+          #result_method with the following values
+          #1.An array with 0-> is_third_menu_selected, 1-> third_menu_index, 2-> option_previous
+          #2.A value of -1 indicates that occur an error and need to exit
 
-          while is_third_menu_selected
+          result_method_second = exec_second_menu(menu_option, menu_method, menu_level+1, index_next_menu, menu_style, 1)
+          
+          return -1 if result_method_second == -1
 
-            exec_third_menu(menu_option[menu_level+2][index_next_menu][third_menu_index], menu_method[menu_level+2][index_next_menu][third_menu_index])
+          while result_method_second[0]
+
+            result_method = exec_third_menu(menu_option[menu_level+2][index_next_menu][ result_method_second[1] ], menu_method[menu_level+2][index_next_menu][ result_method_second[1] ])
             
-            is_third_menu_selected, third_menu_index, option_previous = exec_second_menu(menu_option, menu_method, menu_level+1, index_next_menu, menu_style, option_previous)
+            return -1 if result_method == -1
+
+            result_method_second = exec_second_menu(menu_option, menu_method, menu_level+1, index_next_menu, menu_style, result_method_second[2])
+            
+            return -1 if result_method_second == -1
 
           end
           
-          option = option_previous
+          option = result_method_second[2]
 
         else
         
@@ -466,9 +493,11 @@ class Menu
 
         enter = false
         
-        send(:eval, third_menu_method[option-1])
+        result_method = send(:eval, third_menu_method[option-1])
 
       end
+
+      return -1 if result_method == -1
 
       print "#{@@console.get_utility("CLEAN_SCREEN")}"
 
@@ -528,11 +557,13 @@ class Menu
           
         else
 
-          send(:eval, second_menu_method[second_menu_level][index_second_menu][option-1])
+          result_method = send(:eval, second_menu_method[second_menu_level][index_second_menu][option-1])
           
         end
 
       end
+
+      return -1 if result_method == -1
 
       print "#{@@console.get_utility("CLEAN_SCREEN")}"
 
@@ -1013,8 +1044,25 @@ class Menu
 
       @@console.apply_margin 
       
-      @@task.delete_line([index], delete_mode)
+      result_delete = @@task.delete_line([index], delete_mode)
 
+      #if delete the last file give the oportunity to the user
+      #to create a new file
+      if delete_mode == 1 && result_delete < 0
+
+        #if not create a file stop the program
+        #until exists a new file
+
+        if !exec_create_file
+
+          @@console.cancel_message("No file created\n")
+
+          return -1
+
+        end
+
+      end
+      
       print "\n"
 
       confirm_out = wait_confirm("deleting")
@@ -1042,7 +1090,7 @@ class Menu
 
   end
   
-  def exec_delete_partial
+  def exec_delete_partial(delete_mode = 0)
     save_line = get_task_by_category_line(1)
     partial_line = []
     confirm_out = false
@@ -1084,8 +1132,24 @@ class Menu
       end
 
       @@console.apply_margin
-      @@task.delete_line(partial_line)
+      result_delete = @@task.delete_line(partial_line, delete_mode)
 
+      #if delete the last file give the oportunity to the user
+      #to create a new file
+      if delete_mode == 1 && result_delete < 0
+
+        #if not create a file stop the program
+        #until exists a new file
+        if !exec_create_file
+
+          @@console.cancel_message("No file created\n")
+
+          return -1
+
+        end
+
+      end
+      
       ((partial_line.size)..save_line.size-1).each do |i|
         save_line[i] -= partial_line.size
       end
@@ -1246,7 +1310,10 @@ class Menu
 
   end
   
-  def pagination_line_filter(page, category_task)
+  #display_mode
+  #0 -> normal task
+  #1 -> file
+  def pagination_line_filter(page, category_task, display_mode = 0)
 
     prev_category = category_task
 
@@ -1297,7 +1364,7 @@ class Menu
         
       @@console.apply_margin
 
-      @@task.pagination_line(save_line[start_index..end_index-1], page)
+      @@task.pagination_line(save_line[start_index..end_index-1], page, display_mode)
 
       print "\n" 
       puts "#{@@console.get_space}To #{@@console.get_utility("BOLD")}#{@@console.get_utility("UNDERLINE")}navigate#{@@console.get_color("DEFAULT")} throught the tasks"
@@ -1754,8 +1821,8 @@ class Menu
     
   end
 
-  def exec_delete_range
-
+  def exec_delete_range(delete_mode = 0)
+    
     start_range = 0
     end_range = 0
     swap = 0
@@ -1764,7 +1831,7 @@ class Menu
     category_task = 1
 
     while !confirm_out
-      save_line, page, category_task = pagination_line_filter(page, category_task)
+      save_line, page, category_task = pagination_line_filter(page, category_task, delete_mode)
   
       if save_line.empty?
         @@console.apply_margin
@@ -1797,7 +1864,7 @@ class Menu
         confirm_out = wait_confirm("deleting")
         next
       end
-  
+
       if start_range <= 0 || start_range > save_line.size
         @@console.apply_margin
         @@console.cancel_message("The number is out of the range bounds")
@@ -1859,11 +1926,29 @@ class Menu
       end
   
       @@console.apply_margin
-      @@task.delete_range(save_line[start_range - 1..end_range - 1])
+      result_delete = @@task.delete_range(save_line[start_range - 1..end_range - 1], delete_mode)
+      
+      #if delete the last file give the oportunity to the user
+      #to create a new file
+      if delete_mode == 1 && result_delete < 0
+
+        #if not create a file stop the program
+        #until exists a new file
+        if !exec_create_file
+
+          @@console.cancel_message("No file created\n")
+
+          return -1
+
+        end
+
+      end
+      
       print "\n"
       confirm_out = wait_confirm("deleting")
-    end
-  end
+    end #while
+
+  end #method
   
   def exec_seek_specific(display_mode = 0)
     
