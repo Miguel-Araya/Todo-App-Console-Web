@@ -126,8 +126,6 @@ class Menu
 
     result = exec_menu(menu_option, menu_method, menu_level-1)
     #with menu style -> exec_menu(menu_option, menu_method, menu_level-1, menu_style)
-
-    puts result
     
   end
   
@@ -220,7 +218,7 @@ class Menu
 
     result_method = @@task.set_file(previous_file)
 
-    if !@@task.isEmpty && result_method == -1
+    if result_method == -1
 
       result_method = load_menu_file
 
