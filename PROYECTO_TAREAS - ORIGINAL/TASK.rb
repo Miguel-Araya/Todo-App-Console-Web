@@ -17,6 +17,12 @@ class Task
  
   def set_file(file)
 
+    @file = file
+    
+  end
+
+  def set_file_and_calc_size(file)
+
     return -1 if !File.exist?(file)
 
     @file = file
@@ -444,6 +450,37 @@ class Task
 
   end
 
+  def get_line_text(save_line)
+
+    return [] if isEmpty
+
+    count_line = 1
+
+    text = []
+
+    File.open(@file, "r") do |file|
+
+      for i in 0..save_line.size-1
+
+        num_line = save_line[i]
+
+        while count_line < num_line
+          file.gets
+          count_line += 1
+        end
+
+        text.push(file.gets.strip)
+
+        count_line += 1
+
+      end
+
+    end
+
+    return text
+
+  end
+
   def get_line_partial(save_line, content)
     index_line = 1
     partial_line = []
@@ -684,7 +721,7 @@ class Task
 
     size = 0
     
-    File.foreach(@file) do |line|
+    File.foreach(@file) do
       size += 1
     end 
 
