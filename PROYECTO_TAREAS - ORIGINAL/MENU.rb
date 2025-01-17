@@ -254,7 +254,7 @@ class Menu
 
       unique_file = @@task.get_line_text([1])[0]
 
-      @@task.set_file_and_calc_size(File.join(@@paths["DirectoryListTask"], unique_file ))
+      @@task.set_file_and_calc_size(File.join(@@paths["DirectoryListTask"], unique_file )) if @@task.get_file != File.join(@@paths["DirectoryListTask"], unique_file)
       
       @@console.apply_margin
       @@console.confirm_message("File \"#{File.basename(unique_file, ".txt")}\" selected")
