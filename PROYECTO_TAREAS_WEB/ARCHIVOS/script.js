@@ -383,6 +383,16 @@ const tareaRealizada = (pagina) => {
 
 const cambiarOrden = () => {
 
+    var selectTarea = document.getElementById('selectTarea');
+
+    //Verificar que sea la opcion por defecto
+    if (selectTarea.selectedIndex === 0) {
+
+        selectTarea.reportValidity();
+        
+        return;
+    }
+
     if (ordenSeleccionado === 0) {
 
         ordenSeleccionado = 1;
