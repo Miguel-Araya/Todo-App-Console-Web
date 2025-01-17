@@ -3,16 +3,15 @@ require_relative "TASK.rb"
 require_relative "SHAPE.rb"
 require_relative "CONSOLE_CONTROLLER.rb"
 require_relative "UTILITY.rb"
-
 class Menu
 
   @@console = Console_controller.instance
 
-  @@task = nil
+  @@paths = Utility.get_json("paths.json")
+
+  @@task = Task.new(File.join(@@paths["FileListOption"]))
 
   @@shape = Shape.new
-
-  @@paths = Utility.get_json("paths.json")
 
   def init
 
@@ -210,13 +209,13 @@ class Menu
 
     previous_file = @@task.get_file
 
-    @@task.set_file(@@paths["FileListOption"])
+    @@task.set_file_and_calc_size(@@paths["FileListOption"])
 
     result_method = send(:eval, function)
 
     return -1 if result_method == -1
 
-    result_method = @@task.set_file(previous_file)
+    result_method = @@task.set_file_and_calc_size(previous_file)
 
     if result_method == -1
 
@@ -230,10 +229,12 @@ class Menu
 
   def load_menu_file
 
+    @@task.set_file_and_calc_size(@@paths["FileListOption"]) if @@task.get_file != @@paths["FileListOption"]
+    
     max_char_size = 8 #the limit of characters to check if the file is empty
     content_file = "" #to verify the content of the file
 
-    file_task_option = "FILE_OPTION.txt"
+    file_task_option = @@paths["FileListOption"]
     task_menu_option = []
     task_menu_method = []
 
@@ -247,64 +248,35 @@ class Menu
     if(content_file.empty?)
       return -1
     end
-
-    File.open(file_task_option, "r") do |file|
-
-      while (line = file.gets)
-
-        task_menu_option.push(line.strip)
-
-      end
-
-    end
-
-    if task_menu_option.empty?
-      return -1
-    end
-
-    #ask for "BOM" character
-    if task_menu_option[0][0] == "\xEF\xBB\xBF"
-      task_menu_option[0].slice!(0)
-    end
     
     #Make a default selection if the user dont choose an option
-    if task_menu_option.size == 1
+    if @@task.get_size == 1
 
-      @@task = Task.new(File.join(@@paths["DirectoryListTask"],task_menu_option[0]))
+      unique_file = @@task.get_line_text([1])[0]
+
+      @@task.set_file_and_calc_size(File.join(@@paths["DirectoryListTask"], unique_file ))
       
       @@console.apply_margin
-      @@console.confirm_message("File \"#{task_menu_option[0].split(".")[0]}\" selected")
+      @@console.confirm_message("File \"#{File.basename(unique_file, ".txt")}\" selected")
       @@console.confirm_message("Is the unique file available\n")
 
       wait_enter
 
       print @@console.get_utility("CLEAN_SCREEN")
 
-    end
-    
-    #Select one file by default if the user dont choose one
-    @@task = Task.new(File.join(@@paths["DirectoryListTask"],task_menu_option[-1]))
-
-    for i in 0..task_menu_option.size-1
-
-      task_menu_method.push("set_task('#{task_menu_option[i]}')")
-
-      #Make that the user not need to know the extension of the file
-      task_menu_option[i] = "◉ #{task_menu_option[i].split(".")[0]}"
+      return 0
 
     end
-
-    task_menu_option.insert(0, "◉ Exit")
 
     menu_level = 1
 
-    menu_option = [task_menu_option]
-    menu_method = [task_menu_method]
+    menu_option = [[]]
+    menu_method = [[]]
 
     #if exists more than 1 file to select
-    if task_menu_method.size > 1
+    if @@task.get_size > 1
 
-      exec_menu(menu_option, menu_method, menu_level-1)
+      exec_menu_file(menu_option, menu_method, menu_level-1)
 
     end
 
@@ -331,7 +303,7 @@ class Menu
   
   def set_task(task_file)
 
-    @@task = Task.new(File.join(@@paths["DirectoryListTask"],task_file))
+    @@task.set_file(File.join(@@paths["DirectoryListTask"],task_file))
 
     @@console.apply_margin
 
@@ -347,6 +319,187 @@ class Menu
 
     puts "#{@@console.get_space}Navigate with #{@@console.get_utility("UNDERLINE")}#{@@console.get_utility("BOLD")}up, down#{@@console.get_utility("DEFAULT")}"
     puts "#{@@console.get_space}#{@@console.get_utility("BOLD")}#{@@console.get_utility("UNDERLINE")}and enter#{@@console.get_color("DEFAULT")} keys"
+  end
+
+  #A specific menu that need an option to be selected
+  #to exit and have pagination
+  def exec_menu_file(menu_option, menu_method, menu_level, menu_style = nil)
+
+    file_selected = ""
+
+    #to make the pagination
+    @@task.set_file_and_calc_size(@@paths["FileListOption"]) if @@task.get_file != @@paths["FileListOption"]
+
+    #Start variables to handle the pagination
+    page = 0
+
+    start_index = 0 
+
+    end_index = 0
+
+    difference_start = 0
+
+    difference_end = 0
+
+    print "#{@@console.get_space}LOADING PAGES"
+
+    #store the index of each line that match with the search content
+    save_line = get_task_by_category_line(1)
+    
+    print @@console.get_utility("CLEAN_SCREEN")
+
+    limit_page = (save_line.size / (@@console.size_show_line + 0.0)).ceil
+    
+    if page >= limit_page
+      page = limit_page-1
+    end
+    #End variables to handle the pagination
+
+    #Start variables to handle the menu
+    option_selected = false
+    change_page = true
+    option = 1
+    enter = false
+    #End variables to handle the menu
+
+    loop do
+
+      #Start calc interval of the page each time
+      start_index = page * @@console.size_show_line
+
+      end_index = start_index + @@console.size_show_line
+
+      difference_start = save_line.size - start_index
+
+      if(difference_start < 0)
+        start_index += difference_start
+      end   
+
+      difference_end = save_line.size - end_index   
+      
+      if(difference_end < 0)
+        end_index += difference_end
+      end
+      #End calc interval of the page each time
+
+      if change_page
+        #Get the files with the specific page and include the option to exit
+        options_text = @@task.get_line_text(save_line[start_index..end_index-1])
+
+        #set the menu options
+        menu_option[menu_level] = get_menu_options(options_text)
+
+        #set the menu methods
+        menu_method[menu_level] = get_menu_methods(options_text)
+
+        change_page = false
+
+      end
+
+      if menu_style != nil
+
+        @@shape.draw_box_menu(menu_option[menu_level], option, *menu_style[menu_level])
+
+      else
+
+        @@shape.draw_box_menu(menu_option[menu_level], option)
+
+      end
+
+      print "\n#{@@console.get_space}Page #{page+1} / #{limit_page}\n"
+
+      principal_menu_instruction
+
+      input = read_char
+      input = input.strip
+      
+      previous_page = page
+      page = pagination_key(input, page, limit_page) < 0 ? page : pagination_key(input, page, limit_page)
+
+      if page != previous_page
+        option = 1
+        change_page = true 
+      end
+
+      print @@console.get_utility("CLEAN_SCREEN")
+      
+      if input_key(input, option, menu_option[menu_level].size) == -1
+
+        enter = true
+
+        if option == 0
+
+          break if option_selected
+
+          #if an option was not selected
+          option = 1
+          enter = false
+
+          @@console.apply_margin
+          @@console.cancel_message("You need to select a file\n")
+
+          wait_enter
+
+          print @@console.get_utility("CLEAN_SCREEN")
+
+        end
+
+      else
+
+        option = input_key(input, option, menu_option[menu_level].size)
+
+      end
+
+      if enter
+
+        option_selected = true
+
+        enter = false
+        
+        send(:eval, menu_method[menu_level][option-1])
+
+        file_selected = @@task.get_file
+
+        @@task.set_file(@@paths["FileListOption"])
+
+      end
+      
+      print "#{@@console.get_utility("CLEAN_SCREEN")}"
+
+    end #loop
+
+    @@task.set_file_and_calc_size(file_selected)
+
+  end #function
+
+  def get_menu_options(options)
+
+    menu_options = []
+
+    options.each do |option|
+      
+      menu_options.push("◉ #{File.basename(option, ".txt")}")
+
+    end
+
+    menu_options.insert(0,"◉ Exit")
+
+    return menu_options
+
+  end
+
+  def get_menu_methods(options)
+
+    menu_methods = []
+
+    options.each do |option|
+      
+      menu_methods.push("set_task('#{option}')")
+
+    end
+
+    return menu_methods
+
   end
 
   def exec_menu(menu_option, menu_method, menu_level, menu_style = nil)
@@ -415,8 +568,6 @@ class Menu
             return -1 if result_method_second == -1
 
           end
-          
-          option = result_method_second[2]
 
         else
         
@@ -2075,6 +2226,7 @@ class Menu
 
   def pagination_key(input, page, limit_page)
 
+    #WINDOWS
     case input.inspect
     when @@console.get_input("ARROW_LEFT_WINDOWS")
       if page >= 0
@@ -2086,7 +2238,7 @@ class Menu
       end
 
       return page
-
+    
     when @@console.get_input("ARROW_RIGHT_WINDOWS")
       if page < limit_page
         page += 1
@@ -2100,6 +2252,7 @@ class Menu
 
     end
 
+    #LINUX
     case input
     when @@console.get_input("ARROW_LEFT_LINUX")
       if page >= 0

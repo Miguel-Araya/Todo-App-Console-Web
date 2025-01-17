@@ -1,2 +1,1 @@
-a1.txt
-a2.txt
+Lista general.txt
