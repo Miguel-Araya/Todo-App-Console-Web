@@ -57,9 +57,9 @@ Brinda una interfaz visual para consultar tareas desde el navegador:
 * HTML
 * CSS
 * JavaScript
+* JQuery
 * Node.js
 * Express.js
-
 ---
 
 ## Automatización de Scripts
