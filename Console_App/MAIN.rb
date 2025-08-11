@@ -1,4 +1,4 @@
-require_relative "MENU.rb"
+require_relative "./MENU.rb"
 
 menu = Menu.new
 

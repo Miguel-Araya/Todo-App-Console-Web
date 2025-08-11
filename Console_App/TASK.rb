@@ -1,7 +1,7 @@
 require "date"
-require_relative "SHAPE.rb"
-require_relative "UTILITY.rb"
-require_relative "CONSOLE_CONTROLLER.rb"
+require_relative "./SHAPE.rb"
+require_relative "./UTILITY.rb"
+require_relative "./CONSOLE_CONTROLLER.rb"
 
 class Task
 
@@ -17,13 +17,23 @@ class Task
  
   def set_file(file)
 
+    return if file == @file
+
     @file = file
     
   end
 
+  def get_format_directory_file(file)
+
+    return File.join(@@paths["DirectoryListTask"],file)
+
+  end
+
   def set_file_and_calc_size(file)
 
-    return -1 if !File.exist?(file)
+    return 0 if file == @file
+
+    return -1 if !File.exist?(file) 
 
     @file = file
     @size = calc_size()

@@ -1,6 +1,5 @@
 require "json"
 
-
 module Utility
 
     def self.get_json(json_file)
@@ -20,6 +19,11 @@ module Utility
 
         return false
 
+    end
+
+    def self.deep_freeze(hash)
+        hash.each { |k, v| k.freeze; v.freeze }
+        return hash.freeze
     end
 
 end

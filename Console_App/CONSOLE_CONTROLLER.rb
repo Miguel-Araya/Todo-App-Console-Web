@@ -1,4 +1,5 @@
 require "io/console"
+require_relative "./UTILITY.rb"
 
 class Console_controller
   
@@ -6,17 +7,17 @@ class Console_controller
 
   private_class_method :new
   
-  @@color = {"RED" => "\e[31m", "GREEN" => "\e[32m", "YELLOW" => "\e[33m", "BLUE" => "\e[34m", "CYAN" => "\e[36m", "WHITE" => "\e[37m" , "BLACK" => "\e[30m" ,"MAGENTA" => "\e[35m" ,"DEFAULT" => "\e[0m"}
+  @@color = Utility.deep_freeze({"RED" => "\e[31m", "GREEN" => "\e[32m", "YELLOW" => "\e[33m", "BLUE" => "\e[34m", "CYAN" => "\e[36m", "WHITE" => "\e[37m" , "BLACK" => "\e[30m" ,"MAGENTA" => "\e[35m" ,"DEFAULT" => "\e[0m"})
    
-  @@bg_color = { "RED" => "\e[41m", "BLACK" => "\e[40m", "GREEN" => "\e[42m", "YELLOW" => "\e[43m", "BLUE" => "\e[44m", "MAGENTA" => "\e[45m", "CYAN" => "\e[46m", "WHITE" => "\e[47m" ,"DEFAULT" => "\e[0m"} 
- 
-  @@input = { "ARROW_UP_WINDOWS" => '"\\xE0h"', "ARROW_DOWN_WINDOWS" => '"\\xE0p"', "ARROW_LEFT_WINDOWS" => '"\\xE0k"', "ARROW_RIGHT_WINDOWS" => '"\\xE0m"', "ENTER_WINDOWS" => '""', "ARROW_UP_LINUX" => "\e[a", "ARROW_DOWN_LINUX" => "\e[b", "ARROW_RIGHT_LINUX" => "\e[c", "ARROW_LEFT_LINUX" => "\e[d", "ENTER_LINUX" => "\r"}
+  @@bg_color = Utility.deep_freeze({ "RED" => "\e[41m", "BLACK" => "\e[40m", "GREEN" => "\e[42m", "YELLOW" => "\e[43m", "BLUE" => "\e[44m", "MAGENTA" => "\e[45m", "CYAN" => "\e[46m", "WHITE" => "\e[47m" ,"DEFAULT" => "\e[0m"})
+
+  @@input = Utility.deep_freeze({ "ARROW_UP_WINDOWS" => '"\\xE0h"', "ARROW_DOWN_WINDOWS" => '"\\xE0p"', "ARROW_LEFT_WINDOWS" => '"\\xE0k"', "ARROW_RIGHT_WINDOWS" => '"\\xE0m"', "ENTER_WINDOWS" => '""', "ARROW_UP_LINUX" => "\e[a", "ARROW_DOWN_LINUX" => "\e[b", "ARROW_RIGHT_LINUX" => "\e[c", "ARROW_LEFT_LINUX" => "\e[d", "ENTER_LINUX" => "\r"})
   
-  @@utility = { "CLEAN_SCREEN" => "\e[2J\e[f", "UNDERLINE" => "\e[4m", "BOLD" => "\e[1m", "DEFAULT" => "\e[0m" }
+  @@utility = Utility.deep_freeze({ "CLEAN_SCREEN" => "\e[2J\e[f", "UNDERLINE" => "\e[4m", "BOLD" => "\e[1m", "DEFAULT" => "\e[0m" })
   
-  @@decoration_style = { "dotted" => "•", "bubble" => "○", "diamond_fill" => "◆", "diamond_empty" => "◇", "star_fill" => "★", "star_empty" => "☆"}
+  @@decoration_style = Utility.deep_freeze({ "dotted" => "•", "bubble" => "○", "diamond_fill" => "◆", "diamond_empty" => "◇", "star_fill" => "★", "star_empty" => "☆"})
   
-  @@selected_icon = { "default" => "<", "triangle" => "◁", "square" => "☐", "double_arrow" => "«"}
+  @@selected_icon = Utility.deep_freeze({ "default" => "<", "triangle" => "◁", "square" => "☐", "double_arrow" => "«"})
 
   def get_color(color)
     return @@color[color]
@@ -85,4 +86,6 @@ class Console_controller
     return @@instance
   end
   
+  @@instance.freeze
+
 end

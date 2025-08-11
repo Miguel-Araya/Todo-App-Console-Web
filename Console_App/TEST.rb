@@ -1,6 +1,6 @@
-require_relative 'TASK.rb'
-require_relative 'MENU.rb'
-require_relative 'CONSOLE_CONTROLLER.rb'
+require_relative './TASK.rb'
+require_relative './MENU.rb'
+require_relative './CONSOLE_CONTROLLER.rb'
 require "io/console"
 
 #@task = Task.new

@@ -1,8 +1,8 @@
 require "io/console"
-require_relative "TASK.rb"
-require_relative "SHAPE.rb"
-require_relative "CONSOLE_CONTROLLER.rb"
-require_relative "UTILITY.rb"
+require_relative "./TASK.rb"
+require_relative "./SHAPE.rb"
+require_relative "./CONSOLE_CONTROLLER.rb"
+require_relative "./UTILITY.rb"
 class Menu
 
   @@console = Console_controller.instance
@@ -229,8 +229,6 @@ class Menu
 
   def load_menu_file
 
-    @@task.set_file_and_calc_size(@@paths["FileListOption"]) if @@task.get_file != @@paths["FileListOption"]
-    
     max_char_size = 8 #the limit of characters to check if the file is empty
     content_file = "" #to verify the content of the file
 
@@ -249,6 +247,12 @@ class Menu
       return -1
     end
     
+    previous_file_selected = @@task.get_file if @@task.get_file != @@paths["FileListOption"]
+
+    print previous_file_selected
+
+    @@task.set_file_and_calc_size(@@paths["FileListOption"]) if @@task.get_file != @@paths["FileListOption"]
+
     #Make a default selection if the user dont choose an option
     if @@task.get_size == 1
 
@@ -276,7 +280,7 @@ class Menu
     #if exists more than 1 file to select
     if @@task.get_size > 1
 
-      exec_menu_file(menu_option, menu_method, menu_level-1)
+      exec_menu_file(menu_option, menu_method, menu_level-1, previous_file_selected)
 
     end
 
@@ -323,7 +327,7 @@ class Menu
 
   #A specific menu that need an option to be selected
   #to exit and have pagination
-  def exec_menu_file(menu_option, menu_method, menu_level, menu_style = nil)
+  def exec_menu_file(menu_option, menu_method, menu_level, previous_file_selected = nil, menu_style = nil)
 
     file_selected = ""
 
@@ -332,6 +336,8 @@ class Menu
 
     #Start variables to handle the pagination
     page = 0
+
+    options_text = nil
 
     start_index = 0 
 
@@ -387,7 +393,7 @@ class Menu
         options_text = @@task.get_line_text(save_line[start_index..end_index-1])
 
         #set the menu options
-        menu_option[menu_level] = get_menu_options(options_text)
+        menu_option[menu_level] = get_menu_options(options_text, previous_file_selected)
 
         #set the menu methods
         menu_method[menu_level] = get_menu_methods(options_text)
@@ -399,7 +405,7 @@ class Menu
       if menu_style != nil
 
         @@shape.draw_box_menu(menu_option[menu_level], option, *menu_style[menu_level])
-
+        
       else
 
         @@shape.draw_box_menu(menu_option[menu_level], option)
@@ -427,9 +433,20 @@ class Menu
 
         enter = true
 
+        #if the option is exit
         if option == 0
+          # break if option_selected
+          if previous_file_selected != nil 
 
-          break if option_selected
+            @@task.set_file_and_calc_size(previous_file_selected)
+
+            break
+
+          else
+
+            break if option_selected
+
+          end
 
           #if an option was not selected
           option = 1
@@ -450,8 +467,8 @@ class Menu
 
       end
 
-      if enter
-
+      if enter 
+        
         option_selected = true
 
         enter = false
@@ -459,6 +476,9 @@ class Menu
         send(:eval, menu_method[menu_level][option-1])
 
         file_selected = @@task.get_file
+
+        #update the menu to mark what is the actual file selected
+        menu_option[menu_level] = get_menu_options(options_text, file_selected)
 
         @@task.set_file(@@paths["FileListOption"])
 
@@ -472,13 +492,21 @@ class Menu
 
   end #function
 
-  def get_menu_options(options)
+  def get_menu_options(options, previous_option_selected = nil)
 
     menu_options = []
 
     options.each do |option|
-      
-      menu_options.push("◉ #{File.basename(option, ".txt")}")
+
+      if previous_option_selected != nil && File.basename(option) == File.basename(previous_option_selected)
+
+        menu_options.push("#{@@console.get_color("GREEN")}***#{@@console.get_color("DEFAULT")} #{File.basename(option, ".txt")}")  
+
+      else
+
+        menu_options.push("◉ #{File.basename(option, ".txt")}")
+
+      end
 
     end
 

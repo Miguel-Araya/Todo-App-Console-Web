@@ -1,4 +1,4 @@
-require_relative "CONSOLE_CONTROLLER.rb"
+require_relative "./CONSOLE_CONTROLLER.rb"
 
 class Shape
 
@@ -59,21 +59,21 @@ class Shape
 
   def right_arrow(height, message, num_task)
     print @@console.get_color("WHITE")
-  
+
     height.times do
       print ">"
     end
-  
+
     print " #{num_task}"
-    
+
     puts "#{@@console.get_color("CYAN")} #{message}"
     print @@console.get_color("WHITE")
-  
+
     print @@console.get_color("DEFAULT")
-  
+
     puts ""
   end
-  
+
   def file_line(file)
 
     #remove the extension of the file
@@ -85,11 +85,11 @@ class Shape
   end
 
   def mark_task(task)
-    
+
     puts "#{@@console.get_bg_color("GREEN")}#{@@console.get_color("BLACK")}✓#{@@console.get_bg_color("DEFAULT")} #{task}"
     puts ""
   end
-  
+
   def unmark_task(task)
 
     puts "#{@@console.get_bg_color("RED")}#{@@console.get_color("BLACK")}X#{@@console.get_bg_color("DEFAULT")} #{task}"
@@ -98,20 +98,14 @@ class Shape
   end
 
   def get_max_length_menu_option(menu_option)
-    max = 0
 
-    menu_option.each do |option|
-      if max < option.length
-        max = option.length
-      end
-    end
+    menu_option.map { |opt| clean_ansi_codes_length(opt) }.max
 
-    return max
   end
 
   #box_style
   #solid, dotted, dashed
-  #bubble, diamond, 
+  #bubble, diamond,
   def draw_box_menu(menu_option, option, box_style = "solid" , box_color = "WHITE", text_color = "CYAN", type_icon = "default")
 
     box_style ||= "solid"
@@ -131,6 +125,11 @@ class Shape
 
     end
 
+  end
+
+  def clean_ansi_codes_length(str)
+    #Delete ANSI CODES
+    str.gsub(/\e\[[0-9;]*m/, '').length
   end
 
   #box_color, text_color
@@ -166,9 +165,9 @@ class Shape
       if option == index
         print_option = "#{@@console.get_space}#{@@console.get_bg_color("#{box_color}")}  #{@@console.get_bg_color(
         "DEFAULT")}#{@@console.get_color("#{text_color}")} #{menu_option[index]} #{selected_icon}#{@@console.get_color("DEFAULT")}"
-          
+
         # the +1 is for the space between the selected simbol
-        size_box_menu = (max_option - menu_option[index].length) +1
+        size_box_menu = (max_option - clean_ansi_codes_length(menu_option[index])) +1
 
         size_box_menu.times do
           print_option += " "
@@ -184,7 +183,7 @@ class Shape
 
         # the +2 is for, 1 for filled the space of the not selected option, and 1 for the space between the option and the box menu
         #and +1 between the right position of the icon and the selected icon
-        size_box_menu = (max_option - menu_option[index].length) + 3
+        size_box_menu = (max_option - clean_ansi_codes_length(menu_option[index])) + 3
 
         size_box_menu.times do
           print_option += " "
@@ -202,7 +201,7 @@ class Shape
     puts horizontal_bar
 
   end
-  
+
   def box_menu_dashed(menu_option, option, box_color, text_color, selected_icon)
 
     selected_option = "<"
@@ -237,9 +236,9 @@ class Shape
       if option == index
         print_option = "#{@@console.get_space}#{@@console.get_color("#{box_color}")}| #{@@console.get_color(
         "DEFAULT")}#{@@console.get_color("#{text_color}")} #{menu_option[index]} #{selected_icon}#{@@console.get_color("DEFAULT")}"
-          
+
         # the +1 is for the space between the selected simbol
-        size_box_menu = (max_option - menu_option[index].length) + 1
+        size_box_menu = (max_option - clean_ansi_codes_length(menu_option[index])) + 1
 
         size_box_menu.times do
           print_option += " "
@@ -254,7 +253,7 @@ class Shape
         )} #{menu_option[index]}"
 
         # the +2 is for, 1 for filled the space of the not selected option, and 1 for the space between the option and the box menu
-        size_box_menu = (max_option - menu_option[index].length) + 3
+        size_box_menu = (max_option - clean_ansi_codes_length(menu_option[index])) + 3
 
         size_box_menu.times do
           print_option += " "
@@ -305,15 +304,15 @@ class Shape
       if option == index
         print_option = "#{@@console.get_space}#{@@console.get_color("#{box_color}")}#{decoration_symbol} #{@@console.get_color(
         "DEFAULT")}#{@@console.get_color("#{text_color}")} #{menu_option[index]} #{selected_icon}#{@@console.get_color("DEFAULT")}"
-          
+
         # the +1 is for the space between the selected simbol
-        size_box_menu = (max_option - menu_option[index].length) + 1
+        size_box_menu = (max_option - clean_ansi_codes_length(menu_option[index])) + 1
 
         size_box_menu.times do
           print_option += " "
         end
         print_option += "#{@@console.get_color("#{box_color}")} #{decoration_symbol}#{@@console.get_color("DEFAULT")}"
-        
+
         puts print_option
       else
         print_option = "#{@@console.get_space}#{@@console.get_color("#{box_color}")}#{decoration_symbol} #{@@console.get_color(
@@ -321,14 +320,14 @@ class Shape
         )} #{menu_option[index]}"
 
         # the +2 is for, 1 for filled the space of the not selected option, and 1 for the space between the option and the box menu
-        size_box_menu = (max_option - menu_option[index].length) + 3
+        size_box_menu = (max_option - clean_ansi_codes_length(menu_option[index])) + 3
 
         size_box_menu.times do
           print_option += " "
         end
 
         print_option += "#{@@console.get_color("#{box_color}")} #{decoration_symbol}#{@@console.get_color("DEFAULT")}"
-        
+
         puts print_option
 
       end
