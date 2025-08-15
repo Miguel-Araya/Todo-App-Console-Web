@@ -365,6 +365,7 @@ class Menu
     option_selected = false
     change_page = true
     option = 1
+    previous_option = -1
     enter = false
     #End variables to handle the menu
 
@@ -393,13 +394,13 @@ class Menu
         options_text = @@task.get_line_text(save_line[start_index..end_index-1])
 
         #set the menu options
-        menu_option[menu_level] = get_menu_options(options_text, previous_file_selected)
+        menu_option[menu_level], previous_option = get_menu_options(options_text, previous_file_selected)
 
         #set the menu methods
         menu_method[menu_level] = get_menu_methods(options_text)
 
         change_page = false
-
+        
       end
 
       if menu_style != nil
@@ -469,16 +470,18 @@ class Menu
 
       if enter 
         
+        enter = false
+
+        previous_option == option ? next : previous_option = option
+
         option_selected = true
 
-        enter = false
-        
         send(:eval, menu_method[menu_level][option-1])
 
         file_selected = @@task.get_file
 
         #update the menu to mark what is the actual file selected
-        menu_option[menu_level] = get_menu_options(options_text, file_selected)
+        menu_option[menu_level], previous_option = get_menu_options(options_text, file_selected)
 
         @@task.set_file(@@paths["FileListOption"])
 
@@ -496,11 +499,16 @@ class Menu
 
     menu_options = []
 
-    options.each do |option|
+    previous_option = -1
+
+    options.each_with_index do |option, index|
 
       if previous_option_selected != nil && File.basename(option) == File.basename(previous_option_selected)
 
         menu_options.push("#{@@console.get_color("GREEN")}***#{@@console.get_color("DEFAULT")} #{File.basename(option, ".txt")}")  
+
+        # +1 to include the exit option
+        previous_option = index+1
 
       else
 
@@ -512,7 +520,7 @@ class Menu
 
     menu_options.insert(0,"◉ Exit")
 
-    return menu_options
+    return menu_options, previous_option
 
   end
 
