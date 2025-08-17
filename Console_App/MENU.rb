@@ -248,9 +248,7 @@ class Menu
     end
     
     previous_file_selected = @@task.get_file if @@task.get_file != @@paths["FileListOption"]
-
-    print previous_file_selected
-
+    
     @@task.set_file_and_calc_size(@@paths["FileListOption"]) if @@task.get_file != @@paths["FileListOption"]
 
     #Make a default selection if the user dont choose an option
