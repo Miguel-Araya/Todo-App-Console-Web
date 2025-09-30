@@ -1128,9 +1128,6 @@ class Menu
 
       difference_value = save_byte[index - 1] - byte_value
 
-      puts "index #{index}"
-      puts "before save_byte #{save_byte}"
-
       if index < save_byte.size
         temp_value = save_byte[index]
         save_byte[index] = (((save_byte[index] - save_byte[index - 1]) - byte_value) - save_byte[index]).abs
@@ -1141,9 +1138,6 @@ class Menu
         save_byte[i] -= temp_value - save_byte[i - 1]
         temp_value = next_value
       end
-
-      puts "after #{save_byte}"
-      puts "espected #{get_task_by_category_byte(1)}"
 
       print "\n"
       confirm_out = wait_confirm("updating")
